@@ -33,7 +33,6 @@ public:
 	Vector3D getvelocityCOM(){ return velocityCOM;}
 	Vector3D getaccelerationCOM(){ return accelerationCOM;}
 
-	bool IlluminationOn(){return planetaryIlluminationOn;}
 	/* Variable Setting Methods */
 
 	void setName(string namestring){name=namestring;}
@@ -47,8 +46,6 @@ public:
 	void setpositionCOM(Vector3D  r){positionCOM=r;}
 	void setvelocityCOM(Vector3D  v){ velocityCOM=v;}
 	void setaccelerationCOM(Vector3D  a){ accelerationCOM=a;}
-
-	void setIllumination(bool illum){planetaryIlluminationOn = illum;}
 
 	// Standard cloning method
 	virtual System* Clone() { return new System(*this); }
@@ -74,11 +71,9 @@ public:
 	void calcInitialProperties();
 	void calcForces(vector<Body*> &bodyarray);
 	vector<double> checkForEclipses(int bodyindex);
+
 	void evolveSystem(double tbegin, double tend);
 	void evolveSystem(double dt);
-
-	void calcPlanetaryEquilibriumTemperatures();
-
 
 	void calc2DFlux(double &dt);
 
@@ -87,6 +82,7 @@ public:
 
 	void outputNBodyData(FILE* outputfile, double &time, vector<int>orbitCentre);
 	void output2DFluxData(int &snapshotNumber, double &tSnap);
+	void outputIntegratedFluxData();
 
 protected:
 
@@ -116,8 +112,6 @@ protected:
 	Vector3D positionCOM;  // Position of the Centre of Mass
 	Vector3D velocityCOM;  // Velocity of the Centre of Mass
 	Vector3D accelerationCOM; // Acceleration of the Centre of Mass
-
-	bool planetaryIlluminationOn;
 
 };
 

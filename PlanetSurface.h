@@ -52,6 +52,7 @@ public:
 	// Other Methods
 
 	void initialiseArrays();
+	void initialiseOutputVariables(string prefixString, vector<Body*> stars);
 
 	void resetFluxTotals();
 
@@ -61,11 +62,11 @@ public:
 	void calcFlux(int &istar, Body* &star, double &eclipseFraction, double &time, double &dt,double &fluxmax, double &fluxunit);
 	void calcIntegratedQuantities(double &dt);
 
-	void writeFluxFile(FILE* outputFlux, double &time);
+	void writeFluxFile(int &snapshotNumber, double &time);
 	void writeSkyFile(FILE* outputSky, int &istar, double &time);
-	void writeToLocationFile(FILE* outputLocation, int &istar,int &iLongitude, int &iLatitude,double &time);
+	void writeToLocationFiles(double &time);
 
-	void writeIntegratedFile(FILE* integratedfile);
+	void writeIntegratedFile();
 
 	static const int nStarMax = 10;
 	static const int nLatMax = 500;
@@ -97,6 +98,8 @@ protected:
 	double fluxtot[nLongMax][nLatMax];
 	double integratedflux[nLongMax][nLatMax];
 	double darkness[nLongMax][nLatMax];
+
+	FILE *integratedFile, *fluxFile, *locationFile[nStarMax];
 
 };
 

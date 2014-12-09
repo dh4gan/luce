@@ -25,7 +25,7 @@ parFile::parFile()
     maximumTime = 0.0;
     snapshotTime = 0.0;
     snapshotNumber =0;
-    nPoints = 0;
+
     number_bodies = 0;
 
     }
@@ -44,7 +44,7 @@ parFile::parFile(string name)
     snapshotTime = 0.0;
     snapshotNumber = 0;
 
-    nPoints =0;
+
     number_bodies = 0;
 
     }
@@ -107,7 +107,6 @@ void parFile::readPosFile()
 
     NBodyFile = "nbody_output.txt";
     snapshotNumber = 0;
-    nPoints = 0;
 
     restart = false;
     tidal = false;
@@ -125,9 +124,6 @@ void parFile::readPosFile()
     luminosity.push_back(0.0);
     rotationPeriod.push_back(0.0);
     obliquity.push_back(0.0);
-    winterSolstice.push_back(0.0);
-    oceanFraction.push_back(0.0);
-    initialTemperature.push_back(0.0);
 
     while (getline(myfile, line))
 	{
@@ -151,16 +147,6 @@ void parFile::readPosFile()
 		{
 		illumination = true;
 		cout << "Planetary Illumination Active" << endl;
-		}
-	    }
-
-	if (par == "TidalHeating")
-	    {
-	    iss >> tidalChoice;
-	    if (tidalChoice == "T")
-		{
-		tidal = true;
-		cout << "Tidal Heating Active" << endl;
 		}
 	    }
 
@@ -208,18 +194,23 @@ void parFile::readPosFile()
 
 	    rotationPeriod.assign(number_bodies, 0.0);
 	    obliquity.assign(number_bodies, 0.0);
-	    winterSolstice.assign(number_bodies, 0.0);
-	    oceanFraction.assign(number_bodies, 0.0);
-	    initialTemperature.assign(number_bodies, 0.0);
+
+
+
 	    orbitCentre.assign(number_bodies, 0.0);
-	    activateMelt.assign(number_bodies,false);
+
 	    bodyIndex = -1;
 
 	    }
-	else if(par =="NGridPoints")
-	    {
-	    iss >> nPoints;
-	    }
+	else if(par =="NLongitude")
+	{
+		iss >> nLongitude;
+	}
+	else if(par=="NLatitude")
+	{
+		iss >> nLatitude;
+	}
+
 	else if(par=="BodyName")
 	    {
 	    iss >> BodyName;
@@ -287,34 +278,7 @@ void parFile::readPosFile()
 
 	    }
 
-	else if (par == "WinterSolstice")
-	    {
-	    iss >> val_i;
-	    val_i = val_i *3.1415/180.0;
-	    winterSolstice[bodyIndex]=val_i;
 
-	    }
-
-	else if (par == "OceanFraction")
-	    {
-	    iss >> val_i;
-	    oceanFraction[bodyIndex] = val_i;
-
-	    }
-	else if (par == "InitialTemperature")
-	    {
-	    iss >> val_i;
-	    initialTemperature[bodyIndex] = val_i;
-	    }
-	else if(par == "IceMeltingOn")
-	    {
-	    iss >> meltChoice;
-	    if(meltChoice=="T")
-		{
-		activateMelt[bodyIndex] = true;
-		}
-
-	    }
 
 	}
     myfile.close();
@@ -355,8 +319,6 @@ void parFile::readOrbFile()
 
     ifstream myfile(inputfile);
 
-
-    nPoints = 0;
 
     // Then loop through each line using getline and then
     //assign to vectors
@@ -437,21 +399,21 @@ void parFile::readOrbFile()
 
 	    rotationPeriod.assign(number_bodies, 0.0);
 	    obliquity.assign(number_bodies, 0.0);
-	    winterSolstice.assign(number_bodies, 0.0);
-	    oceanFraction.assign(number_bodies, 0.0);
-	    initialTemperature.assign(number_bodies, 0.0);
 	    orbitCentre.assign(number_bodies,0.0);
-	    activateMelt.assign(number_bodies,false);
+
 	    bodyIndex = -1;
 
 
 	    }
 
-	else if(par =="NGridPoints")
-		    {
-		    iss >> nPoints;
-		    }
-
+	else if(par =="NLongitude")
+	{
+		iss >> nLongitude;
+	}
+	else if(par=="NLatitude")
+	{
+		iss >> nLatitude;
+	}
 	else if (par == "BodyName")
 	    {
 	    iss >> BodyName;
@@ -543,33 +505,7 @@ void parFile::readOrbFile()
 	    obliquity[bodyIndex] = val_i;
 	    }
 
-	else if (par == "WinterSolstice")
-	    {
-	    iss >> val_i;
-	    val_i = val_i *3.1415/180.0;
-	    winterSolstice[bodyIndex] = val_i;
-	    }
 
-	else if (par == "OceanFraction")
-	    {
-	    iss >> val_i;
-
-	    oceanFraction[bodyIndex] = val_i;
-	    }
-	else if (par == "InitialTemperature")
-	    {
-	    iss >> val_i;
-	    initialTemperature[bodyIndex] = val_i;
-	    }
-	else if(par == "IceMeltingOn")
-	    {
-	    iss >> meltChoice;
-	    if(meltChoice=="T")
-		{
-		activateMelt[bodyIndex] = true;
-		}
-
-	    }
 	}
     myfile.close();
 

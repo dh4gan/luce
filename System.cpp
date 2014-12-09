@@ -877,34 +877,7 @@ void System::calcPlanetaryEquilibriumTemperatures()
 
     }
 
-void System::evolveLEBMs(double &dt)
-    {
-    /*
-     * Written 10/1/14 by dh4gan
-     * Checks for any World objects, and makes them update their LEBM models
-     *
-     */
-    vector<double>eclipsefrac;
-
-    if(planetaryIlluminationOn)
-	{
-	calcPlanetaryEquilibriumTemperatures();
-	}
-
-    for (int i=0; i< bodyCount; i++)
-	{
-	if(bodies[i]->getType()=="World")
-	    {
-	    eclipsefrac = checkForEclipses(i);
-	    bodies[i]->updateLEBM(bodies,eclipsefrac,dt);
-
-	    }
-
-	}
-    }
-
-
-
+//TODO - Do we need this method now?
 double System::calcCombinedTimestep()
     {
     /*
@@ -998,7 +971,7 @@ void System::outputNBodyData(FILE *outputfile, double &time, vector<int> orbitCe
 
     }
 
-void System::outputLEBMData(int &snapshotNumber, double &tSnap)
+void System::output2DFluxData(int &snapshotNumber, double &tSnap)
     {
 
     /*
@@ -1009,10 +982,14 @@ void System::outputLEBMData(int &snapshotNumber, double &tSnap)
 
     for (int b=0; b < bodyCount; b++)
 	{
-	if(bodies[b]->getType()=="World")
+	if(bodies[b]->getType()=="PlanetSurface")
 	    {
 
-	    bodies[b]->outputLEBMData(snapshotNumber, tSnap);
+		if(fullOutput){
+	    bodies[b]->writeFluxFile(snapshotNumber, tSnap);
+		}
+
+		bodies[b]->writetoLocationFiles(tSnap);
 
 	    }
 
@@ -1020,3 +997,20 @@ void System::outputLEBMData(int &snapshotNumber, double &tSnap)
 
     }
 
+void System::outputIntegratedFluxData() {
+	/*
+	 * Written 4/12/14 by dh4gan
+	 * Writes the integrated flux data to files
+	 *
+	 */
+
+	for (int b = 0; b < bodyCount; b++) {
+		if (bodies[b]->getType() == "PlanetSurface") {
+
+			bodies[b]->writeIntegratedFile();
+
+		}
+
+	}
+
+}

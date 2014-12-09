@@ -111,6 +111,34 @@ void PlanetSurface::initialiseArrays() {
 
 }
 
+void PlanetSurface::initialiseOutputVariables(string prefixString, vector<Body*> stars)
+
+{
+	/*
+	 * Written 4/12/14 by dh4gan
+	 *
+	 * This sets up the FILE pointers for writing later on
+	 *
+	 */
+
+
+	string fileString;
+
+	for (int istar=0; istar<nStars; istar++){
+
+		// Location Files
+		fileString= prefixString+'_'+stars[istar]->getName()+'.location';
+		locationFile[istar]=fopen(fileString.c_str(),"w");
+
+	}
+
+	fileString = prefixString+'_'+getName()+'.integrated';
+	integratedFile = fopen(fileString.c_str(),"w");
+
+
+
+}
+
 void PlanetSurface::resetFluxTotals() {
 	/*
 	 * Written 1/12/14 by dh4gan
@@ -196,7 +224,7 @@ void PlanetSurface::calcLongitudeOfNoon(Body* &star, int &istar) {
 
 }
 
-void PlanetSurface::writeFluxFile(FILE* outputFlux, double &time)
+void PlanetSurface::writeFluxFile(int &snapshotNumber, double &time)
 
 {
 	/**
@@ -204,16 +232,23 @@ void PlanetSurface::writeFluxFile(FILE* outputFlux, double &time)
 	 * Writes a snapshot of the total flux to file
 	 *
 	 */
+	ostringstream convert;
+	convert << snapshotNumber;
 
-	fprintf(outputFlux, "%+.4E %i %i \n", time, nLatitude, nLongitude);
+	string numString = convert.str();
+	string snapshotFileName = getName()+"."+numString;
+
+	fluxFile = fopen(snapshotFileName.c_str(), "w");
+
+	fprintf(fluxFile, "%+.4E %i %i \n", time, nLatitude, nLongitude);
 	for (int j = 0; j < nLongitude; j++) {
 		for (int k = 0; k < nLatitude; k++) {
-			fprintf(outputFlux, "%+.4E %+.4E %+.4E %+.4E \n", longitude[j],
+			fprintf(fluxFile, "%+.4E %+.4E %+.4E %+.4E \n", longitude[j],
 					latitude[k], fluxtot[j][k], darkness[j][k]);
 		}
 	}
-	fflush(outputFlux);
-	fclose(outputFlux);
+	fflush(fluxFile);
+	fclose(fluxFile);
 
 }
 
@@ -233,35 +268,38 @@ void PlanetSurface::writeSkyFile(FILE* outputSky, int &istar, double &time) {
 
 }
 
-void PlanetSurface::writeToLocationFile(FILE* outputLocation, int &istar,
-		int &iLongPick, int &iLatPick, double &time) {
+void PlanetSurface::writeToLocationFiles(double &time) {
 	/*
 	 * Written 01/12/14 by dh4gan
 	 * writes prepicked location data for a timestep
 	 */
 
-	fprintf(outputLocation,
+
+	for (int istar=0; istar< nStars; istar++)
+	{
+	fprintf(locationFile[istar],
 			"%+.4E  %+.4E  %+.4E  %+.4E  %+.4E  %+.4E  %+.4E \n", time,
 			longitude[iLongPick], latitude[iLatPick],
 			flux[istar][iLongPick][iLatPick],
 			altitude[istar][iLongPick][iLatPick],
 			azimuth[istar][iLongPick][iLatPick], hourAngle[istar][iLongPick]);
-	fflush(outputLocation);
+	fflush(locationFile[istar]);
+	}
 
 }
 
-void PlanetSurface::writeIntegratedFile(FILE *outputFlux) {
+void PlanetSurface::writeIntegratedFile() {
 
-	fprintf(outputFlux, "%i %i \n", nLatitude, nLongitude);
+	fprintf(integratedFile, "%i %i \n", nLatitude, nLongitude);
 
 	for (int j = 0; j < nLongitude; j++) {
 		for (int k = 0; k < nLatitude; k++) {
-			fprintf(outputFlux, "%+.4E  %+.4E  %+.4E  %+.4E \n", longitude[j],
+			fprintf(integratedFile, "%+.4E  %+.4E  %+.4E  %+.4E \n", longitude[j],
 					latitude[k], integratedflux[j][k], darkness[j][k]);
 		}
 	}
-	fflush(outputFlux);
-	fclose(outputFlux);
+	fflush(integratedFile);
+	fclose(integratedFile);
 }
 
 void PlanetSurface::calcFlux(int &istar, Body* &star, double &eclipseFraction,

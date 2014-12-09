@@ -34,8 +34,8 @@ public:
 	bool tidal;
 
 	int number_bodies;
-	int nPoints;
 	int snapshotNumber;
+	int nLongitude, nLatitude;
 	double snapshotTime;
 	double maximumTime;
 	double systemTime;
@@ -68,10 +68,6 @@ public:
 
 	vector<double> rotationPeriod;
 	vector<double> obliquity;
-	vector<double> winterSolstice;
-	vector<double> oceanFraction;
-	vector<double> initialTemperature;
-	vector<bool> activateMelt;
 
 	vector<int> orbitCentre;
 

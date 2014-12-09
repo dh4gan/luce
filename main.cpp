@@ -7,7 +7,7 @@
  *	Reads in parameter files and runs N Body code
  *	where some objects have climate modelling done in tandem
  *	via LEBM modelling
- *
+ * // TODO - change description text
  */
 
 #include <iostream>
@@ -55,8 +55,8 @@ int main(int argc, char* argv[])
 
     printf("  \n");
     printf("*********************************************** \n");
-    printf("    NBODY EBM Code \n ");
-    printf("    Date Created : 9th January 2014 \n");
+    printf("    NBODY 2D Flux Code \n ");
+    printf("    Date Created : 4th December 2014 \n");
     printf("*********************************************** \n");
     printf("  \n");
 
@@ -74,12 +74,6 @@ int main(int argc, char* argv[])
 	    {
 	    return -1;
 	    }
-	}
-
-    if(input.nPoints==0)
-	{
-	printf("ERROR! LEBM grid points not defined\n Is NGridPoints defined in paramsfile?\n");
-	return -1;
 	}
 
     // Record parameter data
@@ -126,16 +120,13 @@ int main(int argc, char* argv[])
 
 	    // If the Body is a World, add a World Object and set up LEBM
 
+	// TODO - setup input of PlanetSurface
 	    if (input.BodyTypes[i] == "World")
 		{
 		// Code will halt if initial temperature zero
 		// this stops incomplete params files running successfully
 
-		if(input.initialTemperature[i]==0.0)
-		    {
-		    printf("ERROR in World %s Setup: initial T zero \nIs World fully specified in params file? ", input.BodyNames[i].c_str());
-		    return -1;
-		    }
+
 		BodyArray.push_back(
 			new World(input.BodyNames[i], input.BodyTypes[i],
 				input.Mass[i], input.Radius[i], body_i_position,
@@ -188,17 +179,12 @@ int main(int argc, char* argv[])
 
 		}
 
+	// TODO - setup input of PlanetSurface Object
 	    // If the Body is a World, add a World Object and set up LEBM
 	    if (input.BodyTypes[i] == "World")
 		{
 
-		if (input.initialTemperature[i] == 0.0)
-		    {
-		    printf(
-			    "ERROR in World %s Setup: initial T zero \nIs World fully specified in params file? \n",
-			    input.BodyNames[i].c_str());
-		    return -1;
-		    }
+
 		BodyArray.push_back(
 			new World(input.BodyNames[i], input.BodyTypes[i],
 				input.Mass[i], input.Radius[i],
@@ -236,7 +222,6 @@ int main(int argc, char* argv[])
     // Switch Planetary Illumination on/off
     nBodySystem.setIllumination(input.illumination);
 
-
     // Set up the outputs
 
     if (input.restart and snapshotNumber !=0)
@@ -256,6 +241,8 @@ int main(int argc, char* argv[])
     tMax = tMax * twopi; // Convert maximum time to code units
     tSnap = tSnap*twopi; // Convert snapshot time to code units
 
+
+	// TODO - figure out new timestep procedure
     // Timesteps will be calculated in NBody units, and converted back to seconds for LEBM
 
     // Calculate the minimum LEBM timestep for all worlds and NBody timestep
@@ -273,7 +260,7 @@ int main(int argc, char* argv[])
 	    {
 
 	    // Evolve the LEBMs in the system for the minimum timestep in seconds
-	    nBodySystem.evolveLEBMs(dtsec);
+	    nBodySystem.evolveLEBMs(dtsec); //TODO calculate flux maps
 
 	    // Evolve the NBody particles for the minimum timestep in code units
 	    nBodySystem.evolveSystem(dtunit);
@@ -295,9 +282,9 @@ int main(int argc, char* argv[])
 	// N Body data goes to a single file
 	nBodySystem.outputNBodyData(outputfile, timeyr, input.orbitCentre);
 
-	// LEBM data goes to separate files for each World in the System
+	// 2D Flux data goes to separate files for each World in the System
 
-	nBodySystem.outputLEBMData(snapshotNumber, timeyr);
+	nBodySystem.output2DFluxData(snapshotNumber, timeyr);
 	}
 
     //Close the file before returning
