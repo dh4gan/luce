@@ -209,7 +209,6 @@ int main(int argc, char* argv[])
 
     // Calculate its initial properties
     nBodySystem.calcInitialProperties();
-
     nBodySystem.setHostBodies(input.orbitCentre);
 
     // Switch Planetary Illumination on/off
@@ -288,6 +287,47 @@ int main(int argc, char* argv[])
     //Close the file before returning
 
     fclose(outputfile);
+
+
+    // Write integrated Data to files
+
+
+
+    // Write .info file
+
+    string fileString = input.SystemName+".info";
+    FILE *infoFile = fopen(fileString.c_str(), "w");
+
+    double globalFluxMax= 0.0;
+    int nStars = nBodySystem.countStars();
+
+    	fprintf(infoFile,"%i \n", snapshotNumber);
+    	fprintf(infoFile,"%i \n", nStars);
+
+    for (int s = 0; s < nBodySystem.getBodyCount(); s++)
+	{
+	if (BodyArray[s]->getType() == "Star")
+	    {
+	    fprintf(infoFile, "%s \n", BodyArray[s]->getName().c_str());
+	    fprintf(infoFile, "%+.4E %+.4E %+.4E \n", BodyArray[s]->getRadius(),
+		    BodyArray[s]->getTeff(),
+		    BodyArray[s]->calculatePeakWavelength());
+	    }
+
+	if (BodyArray[s]->getType() == "PlanetSurface")
+	    {
+	    if (BodyArray[s]->getFluxMax() > globalFluxMax)
+		{
+		globalFluxMax = BodyArray[s]->getFluxMax();
+		}
+
+	    }
+	}
+
+    	fprintf(infoFile, "%+.4E \n", globalFluxMax);
+    	fclose(infoFile);
+
+
 
     return 0;
     }

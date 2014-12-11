@@ -136,6 +136,9 @@ public:
 	virtual void setLuminosity(double lum){};
 	virtual double getLuminosity() {return -1.0;}
 	virtual void calcMainSequenceLuminosity(){}
+	virtual double calculatePeakWavelength(){return -1.0;}
+
+	virtual double getTeff(){return -1.0;}
 
 	// Methods for Planet Class
 	virtual void setEquilibriumTemperature(double temp){};
@@ -158,7 +161,7 @@ public:
 
 	virtual double getPSpin(){return -1.0;}
 	virtual double getObliquity(){return -1.0;}
-
+	virtual double getFluxMax(){return -1.0;}
 
 	virtual void setNLongitude(int nlong){}
 	virtual void setNLatitude(int nlat){}

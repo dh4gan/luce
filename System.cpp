@@ -1024,3 +1024,52 @@ void System::outputIntegratedFluxData() {
 	}
 
 }
+
+int System::countStars()
+    {
+    /*
+     * Written 11/12/14 by dh4gan
+     * Returns the number of Body objects with Type Star
+     */
+
+    int nStars = 0;
+    for (int j = 0; j < bodyCount; j++)
+	{
+	if (bodies[j]->getType() == "Star")
+	    nStars++;
+	}
+    return nStars;
+    }
+
+int System::countPlanets()
+    {
+    /*
+     * Written 11/12/14 by dh4gan
+     * Returns the number of Body objects with Type Star
+     */
+
+    int nPlanets = 0;
+    for (int j = 0; j < bodyCount; j++)
+	{
+	if (bodies[j]->getType() == "Planet")
+	    nPlanets++;
+	}
+    return nPlanets;
+    }
+
+int System::countPlanetSurfaces()
+    {
+    /*
+     * Written 11/12/14 by dh4gan
+     * Returns the number of Body objects with Type Star
+     */
+
+    int nPlanetSurfaces = 0;
+    for (int j = 0; j < bodyCount; j++)
+	{
+	if (bodies[j]->getType() == "PlanetSurface")
+	    nPlanetSurfaces++;
+	}
+    return nPlanetSurfaces;
+    }
+

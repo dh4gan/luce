@@ -139,8 +139,6 @@ void PlanetSurface::initialiseOutputVariables(string prefixString, vector<Body*>
 	fileString = prefixString+"_"+getName()+".integrated";
 	integratedFile = fopen(fileString.c_str(),"w");
 
-
-
 }
 
 void PlanetSurface::resetFluxTotals() {
@@ -305,6 +303,8 @@ void PlanetSurface::writeIntegratedFile() {
 	fflush(integratedFile);
 	fclose(integratedFile);
 }
+
+
 
 void PlanetSurface::calcFlux(int &istar, Body* &star, double &eclipseFraction,
 		double &time, double &dt) {

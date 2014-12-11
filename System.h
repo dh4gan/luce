@@ -35,6 +35,10 @@ public:
 
 	bool IlluminationOn(){return planetaryIlluminationOn;}
 
+	int countStars();
+	int countPlanets();
+	int countPlanetSurfaces();
+
 	/* Variable Setting Methods */
 
 	void setName(string namestring){name=namestring;}
@@ -121,6 +125,8 @@ protected:
 
 	bool planetaryIlluminationOn;
 	bool fullOutput; // TODO - Booleans need to be set as parameters
+
+	FILE *infoFile;
 
 	// TODO - Need to warn user if using too many bodies in a simulation
 

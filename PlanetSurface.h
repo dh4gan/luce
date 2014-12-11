@@ -35,6 +35,8 @@ public:
 	int getLongPick(){return iLongPick;}
 	int getLatPick(){return iLatPick;}
 
+	double getFluxMax(){return fluxmax;}
+
 	double getPSpin(){return Pspin;}
 	double getObliquity(){return obliquity;}
 
