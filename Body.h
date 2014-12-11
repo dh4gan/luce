@@ -148,48 +148,43 @@ public:
 	virtual void setAlbedo(double alb){}
 	virtual double getAlbedo(){return -1.0;}
 
-	// Methods for World Class
+	// Methods for PlanetSurface Class
 
-    virtual void setInsolationZero()
-	{
-	}
-    virtual double getLEBMTimestep()
-	{
-	return -1.0;
-	}
+	virtual int getNLongitude(){return -1;}
+	virtual int getNLatitude(){return -1;}
+	virtual int getNStars(){return -1;}
+	virtual int getLongPick(){return -1;}
+	virtual int getLatPick(){return -1;}
 
-    virtual int findRestartTemperature()
-	{
-	return -1;
-	}
-    virtual void setHostBody(Body* bod){};
+	virtual double getPSpin(){return -1.0;}
+	virtual double getObliquity(){return -1.0;}
 
-    // Calculation Methods
 
-    virtual void initialiseLEBM(){};
-    virtual void updateLEBM(vector<Body*> bodies, vector<double> eclipsefrac){};
-    virtual void updateLEBM(vector<Body*> bodies, vector<double> eclipsefrac,
-	    double &dtmax){};
+	virtual void setNLongitude(int nlong){}
+	virtual void setNLatitude(int nlat){}
+	virtual void setNStars(int s){}
 
-    virtual void calcInsolation(Body* star, double &eclipsefrac){};
-    virtual void calcAlbedo(int iLatitude){};
-    virtual void calcHeatCapacity(int iLatitude){};
-    virtual void calcIce(int iLatitude){};
-    virtual void calcOpticalDepth(int iLatitude){};
-    virtual void calcCooling(int iLatitude){};
-    virtual void calcNetHeating(int iLatitude){};
-    virtual void calcHabitability(int iLatitude,double &minT, double &maxT){};
-    virtual void calcLEBMTimestep(double &dtmax){};
+	virtual void setPSpin(double spin){}
+	virtual void setObliquity(double obliq){}
 
-    virtual void integrate(){};
+	virtual void initialiseArrays(){};
+	virtual void initialiseOutputVariables(string prefixString, vector<Body*> stars){};
 
-    // Output Methods
+	virtual void resetFluxTotals(){};
 
-    virtual void outputLEBMData(int &snapshotNumber, double &tSnap){};
-    virtual void initialiseOutputVariables(bool restart){};
-    virtual void calcLEBMMeans(double &minT, double &maxT, double &meanT, double &meanQ, double &meanA,
-	    double &meanIR, double &meanS, double &meanhab, double &meanTidal){};
+	virtual void findSurfaceLocation(double &longitude, double &latitude){};
+	virtual void calcLongitudeOfNoon(Body* &star, int &istar){};
 
+	virtual void calcFlux(int &istar, Body* &star, double &eclipseFraction, double &time, double &dt){};
+	virtual void calcIntegratedQuantities(double &dt){};
+
+	virtual void writeFluxFile(int &snapshotNumber, double &time){};
+	virtual void writeSkyFile(FILE* outputSky, int &istar, double &time){};
+	virtual void writeToLocationFiles(double &time){};
+
+	virtual void writeIntegratedFile(){};
+
+	virtual void setHostBody(Body* bod){};
 
 	// Variables that are part of the Body Class and its derivations //
 protected:

@@ -33,6 +33,8 @@ public:
 	Vector3D getvelocityCOM(){ return velocityCOM;}
 	Vector3D getaccelerationCOM(){ return accelerationCOM;}
 
+	bool IlluminationOn(){return planetaryIlluminationOn;}
+
 	/* Variable Setting Methods */
 
 	void setName(string namestring){name=namestring;}
@@ -47,6 +49,8 @@ public:
 	void setvelocityCOM(Vector3D  v){ velocityCOM=v;}
 	void setaccelerationCOM(Vector3D  a){ accelerationCOM=a;}
 
+	void setIllumination(bool illum){planetaryIlluminationOn = illum;}
+
 	// Standard cloning method
 	virtual System* Clone() { return new System(*this); }
 
@@ -56,8 +60,9 @@ public:
 	void removeBody(int bodyindex);
 
 	void calcNBodyTimestep(vector<Body*> &bodyarray, double dtmax);
-	double calcCombinedTimestep();
+	void calcNBodyTimestep(double dtmax);
 
+	void calcPlanetaryEquilibriumTemperatures();
 	void calcCOMFrame(vector<int> participants);
 	void transformToCOMFrame(vector<int> participants);
 	void calcCOMFrame();
@@ -65,6 +70,7 @@ public:
 	void transformToBodyFrame(int bodyIndex);
 
 	void setupOrbits(vector<int> bodyCentre);
+
 
 	void calcTotalEnergy();
 	void calcTotalAngularMomentum();
@@ -75,7 +81,7 @@ public:
 	void evolveSystem(double tbegin, double tend);
 	void evolveSystem(double dt);
 
-	void calc2DFlux(double &dt);
+	void calc2DFlux(double &time, double &dt);
 
 
 	// Output Methods
@@ -112,6 +118,11 @@ protected:
 	Vector3D positionCOM;  // Position of the Centre of Mass
 	Vector3D velocityCOM;  // Velocity of the Centre of Mass
 	Vector3D accelerationCOM; // Acceleration of the Centre of Mass
+
+	bool planetaryIlluminationOn;
+	bool fullOutput; // TODO - Booleans need to be set as parameters
+
+	// TODO - Need to warn user if using too many bodies in a simulation
 
 };
 

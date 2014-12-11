@@ -7,6 +7,7 @@
 
 #include "PlanetSurface.h"
 #include <stdio.h>
+#include <sstream>
 
 PlanetSurface::PlanetSurface() :
 		Body() {
@@ -15,6 +16,7 @@ PlanetSurface::PlanetSurface() :
 	nLongitude = 100;
 	Pspin = 2.7e-3;
 	obliquity = 0.5123;
+	fluxmax = 0.0;
 
 	initialiseArrays();
 
@@ -28,6 +30,7 @@ PlanetSurface::PlanetSurface(string &namestring, string &typestring, double &m,
 	nLongitude = nlong;
 	Pspin = spin;
 	obliquity = obliq;
+	fluxmax = 0.0;
 
 	initialiseArrays();
 
@@ -45,6 +48,7 @@ PlanetSurface::PlanetSurface(string &namestring, string &typestring, double &m,
 	nLongitude = nlong;
 	Pspin = spin;
 	obliquity = obliq;
+	fluxmax = 0.0;
 
 	initialiseArrays();
 
@@ -127,12 +131,12 @@ void PlanetSurface::initialiseOutputVariables(string prefixString, vector<Body*>
 	for (int istar=0; istar<nStars; istar++){
 
 		// Location Files
-		fileString= prefixString+'_'+stars[istar]->getName()+'.location';
+		fileString= prefixString+"_"+stars[istar]->getName()+".location";
 		locationFile[istar]=fopen(fileString.c_str(),"w");
 
 	}
 
-	fileString = prefixString+'_'+getName()+'.integrated';
+	fileString = prefixString+"_"+getName()+".integrated";
 	integratedFile = fopen(fileString.c_str(),"w");
 
 
@@ -303,7 +307,7 @@ void PlanetSurface::writeIntegratedFile() {
 }
 
 void PlanetSurface::calcFlux(int &istar, Body* &star, double &eclipseFraction,
-		double &time, double &dt, double &fluxmax, double &fluxunit) {
+		double &time, double &dt) {
 	/*
 	 * Written 1/12/14 by dh4gan
 	 * Calculates the flux received from one star over the entire surface

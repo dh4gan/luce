@@ -128,13 +128,13 @@ void System::setHostBodies(vector<int> orbitCentre)
     {
     /*
      * Written 19/8/14 by dh4gan
-     * Sets up Host Bodies for Worlds where appropriate
+     * Sets up Host Bodies where appropriate
      *
      */
 
     for (int i=0; i<bodyCount; i++)
 	{
-	if(bodies[i]->getType()=="World")
+	if(bodies[i]->getType()=="PlanetSurface")
 	    {
 	    if(orbitCentre[i]>0)
 		{
@@ -404,6 +404,16 @@ void System::calcNBodyTimestep(vector<Body*> &bodyarray, double dtmax)
 	dtarraymax = dtmax;
 	}
     timeStep = dtarraymax;
+
+    }
+
+void System::calcNBodyTimestep(double dtmax)
+    {/* Author: dh4gan
+     overloaded Timestep method - defaults to the object's own body array
+      the calcTimestep method for every Body object in the System object,
+     and finds the minimum value */
+
+    calcNBodyTimestep(bodies,dtmax);
 
     }
 
@@ -877,46 +887,46 @@ void System::calcPlanetaryEquilibriumTemperatures()
 
     }
 
-//TODO - Do we need this method now?
-double System::calcCombinedTimestep()
+void System::calc2DFlux(double &time, double &dt)
     {
     /*
-     * Written 10/1/14 by dh4gan
-     * Calculates the minimum of the N Body and LEBM timesteps in the system
+     * Written 11/12/14 by dh4gan
+     * Method allows PlanetSurface Objects to call their flux calculation routines
      *
      */
 
-    double LEBMmin;
-    double twopi = 2.0*3.141592;
-    double tunit = 3.15e7/(twopi);
+    vector<double> eclipsefrac;
 
-    double nbodymin = 1.0e30;
-    // Calculate N Body minimum timestep in code units
-    calcInitialProperties();
-    calcForces(bodies);
-    calcNBodyTimestep(bodies, nbodymin);
-
-    nbodymin = getTimestep();
-
-    // Calculate LEBM minimum timestep in seconds
-
-    for (int b=0; b<bodyCount; b++)
+    for (int j=0; j<bodyCount; j++)
 	{
 
-	if(bodies[b]->getType() == "World")
+	// If body is a PlanetSurface Object, loop through other bodies
+	// and calculate the flux they emit onto its surface
+
+	if(bodies[j]->getType()=="PlanetSurface")
 	    {
-	    LEBMmin = bodies[b]->getLEBMTimestep();
 
-	    LEBMmin =LEBMmin/tunit;
-
-	    if(LEBMmin < nbodymin)
+	    eclipsefrac = checkForEclipses(j);
+	    for(int i=0; i< bodyCount; i++)
 		{
-		nbodymin = LEBMmin;
-		}
 
+		if(i==j) continue; // PlanetSurface can't emit flux onto itself
+
+		if(bodies[i]->getType()=="Star")
+		    {
+		    bodies[j]->calcFlux(i, bodies[i], eclipsefrac[i], time, dt);
+		    }
+
+		if(bodies[i]->getType()=="Planet" && planetaryIlluminationOn)
+		    {
+		    bodies[j]->calcFlux(i, bodies[i], eclipsefrac[i], time, dt);
+		    }
+
+		}
 	    }
+
 	}
-return nbodymin;
+
 
     }
 
@@ -989,7 +999,7 @@ void System::output2DFluxData(int &snapshotNumber, double &tSnap)
 	    bodies[b]->writeFluxFile(snapshotNumber, tSnap);
 		}
 
-		bodies[b]->writetoLocationFiles(tSnap);
+		bodies[b]->writeToLocationFiles(tSnap);
 
 	    }
 

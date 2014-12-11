@@ -59,7 +59,7 @@ public:
 	void findSurfaceLocation(double &longitude, double &latitude);
 	void calcLongitudeOfNoon(Body* &star, int &istar);
 
-	void calcFlux(int &istar, Body* &star, double &eclipseFraction, double &time, double &dt,double &fluxmax, double &fluxunit);
+	void calcFlux(int &istar, Body* &star, double &eclipseFraction, double &time, double &dt);
 	void calcIntegratedQuantities(double &dt);
 
 	void writeFluxFile(int &snapshotNumber, double &time);
@@ -68,9 +68,13 @@ public:
 
 	void writeIntegratedFile();
 
+	void setHostBody(Body* bod){};
+
 	static const int nStarMax = 10;
 	static const int nLatMax = 500;
 	static const int nLongMax = 500;
+
+	static const double fluxunit =17149.12;
 
 protected:
 
@@ -83,6 +87,8 @@ protected:
 
 	double Pspin;
 	double obliquity;
+	double fluxmax;
+	Body* hostBody;
 
 	double noon[nStarMax];
 

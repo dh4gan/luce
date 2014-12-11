@@ -17,7 +17,7 @@
 #include "System.h"
 #include "Star.h"
 #include "Planet.h"
-#include "World.h"
+#include "PlanetSurface.h"
 #include "parFile.h"
 
 #include <fstream>
@@ -39,8 +39,8 @@ int main(int argc, char* argv[])
 
     double tStop;
     double timeunit,timeyr;
-    double dtsec,dtunit;
-    double tSnap, tMax;
+    double dtyr,dtunit;
+    double tSnap, tMax, dtmax;
 
 
     Vector3D body_i_position;
@@ -121,28 +121,19 @@ int main(int argc, char* argv[])
 	    // If the Body is a World, add a World Object and set up LEBM
 
 	// TODO - setup input of PlanetSurface
-	    if (input.BodyTypes[i] == "World")
+	    if (input.BodyTypes[i] == "PlanetSurface")
 		{
 		// Code will halt if initial temperature zero
 		// this stops incomplete params files running successfully
 
 
 		BodyArray.push_back(
-			new World(input.BodyNames[i], input.BodyTypes[i],
-				input.Mass[i], input.Radius[i], body_i_position,
-				body_i_velocity, input.nPoints, input.obliquity[i],input.rotationPeriod[i], input.winterSolstice[i],
-				input.oceanFraction[i], input.initialTemperature[i], input.activateMelt[i], input.restart, input.tidal));
-		if(input.restart)
-		    {
-		    cout << "Reading Temperature data for World " << BodyArray.back()->getName() << endl;
-		    snapshotNumber = BodyArray.back()->findRestartTemperature();
-
-		    if(snapshotNumber==-1)
-			{
-			printf("ERROR in World %s temperature setup \n",input.BodyNames[i].c_str() );
-			return -1;
-			}
-		    }
+			new PlanetSurface(input.BodyNames[i],
+				input.BodyTypes[i], input.Mass[i],
+				input.Radius[i], body_i_position,
+				body_i_velocity, input.number_bodies,
+				input.nLatitude, input.nLongitude,
+				input.rotationPeriod[i], input.obliquity[i]));
 
 		}
 
@@ -181,18 +172,20 @@ int main(int argc, char* argv[])
 
 	// TODO - setup input of PlanetSurface Object
 	    // If the Body is a World, add a World Object and set up LEBM
-	    if (input.BodyTypes[i] == "World")
+	    if (input.BodyTypes[i] == "PlanetSurface")
 		{
 
 
 		BodyArray.push_back(
-			new World(input.BodyNames[i], input.BodyTypes[i],
-				input.Mass[i], input.Radius[i],
-				input.semiMajorAxis[i], input.eccentricity[i],
-				input.inclination[i], input.longAscend[i],
-				input.Periapsis[i], input.meanAnomaly[i], G,
-				input.totalMass,input.nPoints, input.obliquity[i],input.rotationPeriod[i], input.winterSolstice[i],
-				input.oceanFraction[i], input.initialTemperature[i], input.activateMelt[i], input.restart, input.tidal));
+			new PlanetSurface(input.BodyNames[i],
+				input.BodyTypes[i], input.Mass[i],
+				input.Radius[i], input.semiMajorAxis[i],
+				input.eccentricity[i], input.inclination[i],
+				input.longAscend[i], input.Periapsis[i],
+				input.meanAnomaly[i], G, input.totalMass,
+				input.number_bodies, input.nLatitude,
+				input.nLongitude, input.rotationPeriod[i],
+				input.obliquity[i]));
 		}
 
 	    }
@@ -241,15 +234,17 @@ int main(int argc, char* argv[])
     tMax = tMax * twopi; // Convert maximum time to code units
     tSnap = tSnap*twopi; // Convert snapshot time to code units
 
+    dtmax = 0.1*input.snapshotTime;
 
-	// TODO - figure out new timestep procedure
-    // Timesteps will be calculated in NBody units, and converted back to seconds for LEBM
+    // Timesteps will be calculated in NBody units, and converted back to years for Flux calculation
 
-    // Calculate the minimum LEBM timestep for all worlds and NBody timestep
-    dtunit = nBodySystem.calcCombinedTimestep();
+    // Calculate the N Body timestep, which has a maximum minimum LEBM timestep for all worlds and NBody timestep
 
-    dtsec = dtunit*unit2sec; // This will be the default timestep measure - derive dtunit = dtsec*2pi/(3.15e7)
-    timeunit = input.systemTime*twopi;
+    nBodySystem.calcNBodyTimestep(dtmax);
+    dtunit = nBodySystem.getTimestep();
+
+    dtyr = dtunit/twopi;
+    timeunit = 0.0;
 
 
     printf("System set up: Running \n");
@@ -259,8 +254,9 @@ int main(int argc, char* argv[])
 	while (timeunit < tStop)
 	    {
 
+	    timeyr = timeunit/twopi;
 	    // Evolve the LEBMs in the system for the minimum timestep in seconds
-	    nBodySystem.evolveLEBMs(dtsec); //TODO calculate flux maps
+	    nBodySystem.calc2DFlux(timeyr, dtyr);
 
 	    // Evolve the NBody particles for the minimum timestep in code units
 	    nBodySystem.evolveSystem(dtunit);
@@ -268,13 +264,15 @@ int main(int argc, char* argv[])
 	    timeunit = timeunit + dtunit;
 
 	    // Recalculate the minimum timestep
-	    dtunit = nBodySystem.calcCombinedTimestep();
+	    nBodySystem.calcNBodyTimestep(dtmax);
+	    dtunit = nBodySystem.getTimestep();
 
-	    dtsec = dtunit*unit2sec;
+	    dtyr = dtunit/twopi;
+
 
 	    }
 
-	printf("Time: %+.4E yr, Combined Timestep: %+.4E s, %+.4E units\n",timeunit/twopi, dtsec, dtunit);
+	printf("Time: %+.4E yr, Combined Timestep: %+.4E s, %+.4E units\n",timeyr, dtyr, dtunit);
 	// Output data to files
 	snapshotNumber++;
 	timeyr = timeunit/twopi;
