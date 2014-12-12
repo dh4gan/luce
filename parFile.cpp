@@ -189,6 +189,7 @@ void parFile::readPosFile()
 	    z_velocity.assign(number_bodies,0.0);
 
 	    luminosity.assign(number_bodies, 0.0);
+	    effectiveTemperature.assign(number_bodies, 0.0);
 	    albedo.assign(number_bodies,0.0);
 
 
@@ -210,6 +211,10 @@ void parFile::readPosFile()
 	{
 		iss >> nLatitude;
 	}
+	else if(par =="NLambda")
+	    {
+	    iss >> nLambda;
+	    }
 
 	else if(par=="BodyName")
 	    {
@@ -254,6 +259,12 @@ void parFile::readPosFile()
 	    iss >> val_i;
 	    luminosity[bodyIndex]=val_i;
 
+	    }
+
+	else if (par == "EffectiveTemperature")
+	    {
+	    iss >> val_i;
+	    effectiveTemperature[bodyIndex]=val_i;
 	    }
 
 	else if (par == "Albedo")
@@ -395,6 +406,7 @@ void parFile::readOrbFile()
 	    meanAnomaly.assign(number_bodies, 0.0);
 
 	    luminosity.assign(number_bodies, 0.0);
+	    effectiveTemperature.assign(number_bodies,0.0);
 	    albedo.assign(number_bodies,0.0);
 
 	    rotationPeriod.assign(number_bodies, 0.0);
@@ -414,6 +426,11 @@ void parFile::readOrbFile()
 	{
 		iss >> nLatitude;
 	}
+
+	else if(par =="NLambda")
+		    {
+		    iss >> nLambda;
+		    }
 	else if (par == "BodyName")
 	    {
 	    iss >> BodyName;
@@ -484,7 +501,11 @@ void parFile::readOrbFile()
 	    iss >> val_i;
 	    luminosity[bodyIndex] = val_i;
 	    }
-
+	else if (par == "EffectiveTemperature")
+	    {
+	    iss >> val_i;
+	    effectiveTemperature[bodyIndex]=val_i;
+	    }
 	else if (par == "Albedo")
 	    {
 	    iss >> val_i;

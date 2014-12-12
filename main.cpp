@@ -106,7 +106,7 @@ int main(int argc, char* argv[])
 		BodyArray.push_back(
 			new Star(input.BodyNames[i], input.BodyTypes[i],
 				input.Mass[i], input.Radius[i], body_i_position,
-				body_i_velocity, input.luminosity[i]));
+				body_i_velocity, input.luminosity[i],input.effectiveTemperature[i], input.nLambda));
 		}
 
 	    // If the Body is a Planet, add a Planet Object
@@ -118,9 +118,8 @@ int main(int argc, char* argv[])
 				body_i_velocity, input.albedo[i]));
 		}
 
-	    // If the Body is a World, add a World Object and set up LEBM
+	    // If the Body is a PlanetSurface, add a PlanetSurface Object and set up surface grids
 
-	// TODO - setup input of PlanetSurface
 	    if (input.BodyTypes[i] == "PlanetSurface")
 		{
 		// Code will halt if initial temperature zero
@@ -153,7 +152,7 @@ int main(int argc, char* argv[])
 				input.semiMajorAxis[i], input.eccentricity[i],
 				input.inclination[i], input.longAscend[i],
 				input.Periapsis[i], input.meanAnomaly[i], G,
-				input.totalMass, input.luminosity[i]));
+				input.totalMass, input.luminosity[i], input.effectiveTemperature[i], input.nLambda));
 
 		}
 

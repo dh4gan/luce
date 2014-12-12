@@ -12,5 +12,6 @@
 double hplanck = 6.626e-34;
 double c = 2.9e8;
 double k_B = 1.38e-23;
+double stefan = 5.67e-8;
 
 #endif /* RADIATIONCONSTANTS_H_ */

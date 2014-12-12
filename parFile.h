@@ -35,7 +35,7 @@ public:
 
 	int number_bodies;
 	int snapshotNumber;
-	int nLongitude, nLatitude;
+	int nLongitude, nLatitude, nLambda;
 	double snapshotTime;
 	double maximumTime;
 	double systemTime;
@@ -64,6 +64,7 @@ public:
 	vector<double> meanAnomaly;
 
 	vector<double> luminosity;
+	vector<double> effectiveTemperature;
 	vector<double> albedo;
 
 	vector<double> rotationPeriod;

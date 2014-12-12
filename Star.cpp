@@ -7,33 +7,87 @@
 
 #include "Star.h"
 #include "RadiationConstants.h"
+#include "Constants.h"
 #include <iostream>
 /* Constructors and Destructor */
 
 Star::Star() :
 	Body() {
 }
-Star::Star(string &namestring, double &m, double &rad, Vector3D  &pos, Vector3D  &vel) :
-	Body(namestring, m, rad, pos, vel) {
+Star::Star(string &namestring, string &typestring, double &m, double &rad, Vector3D  &pos, Vector3D  &vel) :
+	Body(namestring, typestring, m, rad, pos, vel) {
 	nlambda = 1000;
 	I_lambda = vector<double> (nlambda, 0.0);
 	Teff = 5000.0;
-	   cout << "A star is born  " << Teff << endl;
+	calcLuminosityStefanBoltzmann();
 
 }
 
-Star::Star(string &namestring, double &m, double &rad,Vector3D  &pos, Vector3D &vel, double &T, int &n) :
-	Body(namestring, m, rad, pos, vel) {
+Star::Star(string &namestring, string &typestring, double &m, double &rad,Vector3D  &pos, Vector3D &vel, double &T, int &n) :
+	Body(namestring, typestring, m, rad, pos, vel) {
 	Teff = T;
 	nlambda = n;
 	I_lambda = vector<double> (nlambda, 0.0);
 
+	calcLuminosityStefanBoltzmann();
+
 }
+
+Star::Star(string &namestring, string &typestring, double &m, double &rad,Vector3D  &pos, Vector3D &vel, double &lum, double &T, int &n) :
+	Body(namestring, typestring, m, rad, pos, vel) {
+	Teff = T;
+	nlambda = n;
+	I_lambda = vector<double> (nlambda, 0.0);
+
+	luminosity = lum;
+
+}
+
+
+Star::Star(string &namestring, string &typestring, double &m, double &rad,
+	double semimaj, double ecc, double inc, double longascend,
+	double argper, double meananom, double G, double totalMass, double &T,
+	int &n){
+
+    Body(namestring,typestring,m, rad, semimaj, ecc, inc,longascend,argper, meananom, G, totalMass);
+    Teff = T;
+    nlambda = n;
+    I_lambda = vector<double> (nlambda, 0.0);
+
+    calcLuminosityStefanBoltzmann();
+
+
+}
+
+Star::Star(string &namestring, string &typestring, double &m, double &rad,
+	double semimaj, double ecc, double inc, double longascend,
+	double argper, double meananom, double G, double totalMass,double &lum, double &T,
+	int &n){
+
+    Body(namestring,typestring,m, rad, semimaj, ecc, inc,longascend,argper, meananom, G, totalMass);
+    Teff = T;
+    	nlambda = n;
+    	I_lambda = vector<double> (nlambda, 0.0);
+
+    	luminosity = lum;
+
+
+}
+
 
 Star::~Star() {
 }
 
 /* Calculation Methods */
+
+void Star::calcLuminosityStefanBoltzmann()
+    {
+
+    double radstarSI = radius*rsol;
+    luminosity = 4.0*pi*radstarSI*radstarSI*stefan*Teff*Teff*Teff*Teff;
+    luminosity = luminosity/lsol;
+    }
+
 
 void Star::calculateBlackbodySpectrum() {
 	/* Written by D Forgan

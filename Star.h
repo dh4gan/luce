@@ -15,9 +15,39 @@ using namespace std;
 class Star: public Body {
 public:
 
-	Star();
-	Star(string &namestring, double &m, double &rad, Vector3D  &pos, Vector3D  &vel);
-	Star(string &namestring, double &m, double &rad, Vector3D  &pos, Vector3D  &vel, double &T, int &n);
+    Star();
+
+    // Position Constructors
+
+
+
+    Star(string &namestring, string &typestring, double &m, double &rad,
+	    Vector3D &pos, Vector3D &vel);
+
+
+
+    //Without Luminosity
+    Star(string &namestring, string &typestring, double &m, double &rad,
+	    Vector3D &pos, Vector3D &vel, double &T, int &n);
+
+    // With Luminosity
+    Star(string &namestring, string &typestring, double &m, double &rad,
+    	    Vector3D &pos, Vector3D &vel, double &lum, double &T, int &n);
+
+    // Orbital Constructors
+
+    // Without Luminosity
+    Star(string &namestring, string &typestring, double &m, double &rad,
+	    double semimaj, double ecc, double inc, double longascend,
+	    double argper, double meananom, double G, double totalMass,
+	    double &T, int &n);
+
+    // With Luminosity
+    Star(string &namestring, string &typestring, double &m, double &rad,
+	    double semimaj, double ecc, double inc, double longascend,
+	    double argper, double meananom, double G, double totalMass,
+	    double &lum, double &T, int &n);
+
 	virtual ~Star();
 
 	void setLuminosity(double lum){luminosity = lum;}
@@ -48,6 +78,7 @@ public:
 
 	// Calculation Methods
 
+	void calcLuminosityStefanBoltzmann();
 	void calculateBlackbodySpectrum();
 	double calculatePeakWavelength();
 	void calculateSingleHZ();
