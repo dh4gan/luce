@@ -5,12 +5,14 @@
  *      Author: dh4gan
  */
 
-#include "Body.h"
+
 
 using namespace std;
 
 #ifndef STAR_H_
 #define STAR_H_
+
+#include "Body.h"
 
 class Star: public Body {
 public:
@@ -19,12 +21,8 @@ public:
 
     // Position Constructors
 
-
-
     Star(string &namestring, string &typestring, double &m, double &rad,
 	    Vector3D &pos, Vector3D &vel);
-
-
 
     //Without Luminosity
     Star(string &namestring, string &typestring, double &m, double &rad,

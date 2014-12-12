@@ -13,11 +13,9 @@
 #define BODY_H_
 
 #include <string>
-//#include <vector>
 #include "math.h"
 #include "Vector3D.h"
-
-
+#include "Constants.h"
 
 class Body {
 public:

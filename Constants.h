@@ -9,16 +9,18 @@
 #ifndef CONSTANTS_H_
 #define CONSTANTS_H_
 
-double pi = 3.141592;
-double Gsi = 6.67e-11;
-double Gmau = 1.0;  // Value of G for solar mass-AU units (time units...2pi units= 1 year)
-double AU = 1.496e11;
-double msol = 1.99e30;
-double lsol = 3.826e26;
-double rsol = 6.955e8;
+const double pi = 3.141592;
+const double twopi = 2.0*pi;
+const double piby2 = pi/2.0;
+const double Gsi = 6.67e-11;
+const double Gmau = 1.0;  // Value of G for solar mass-AU units (time units...2pi units= 1 year)
+const double AU = 1.496e11;
+const double msol = 1.99e30;
+const double lsol = 3.826e26;
+const double rsol = 6.955e8;
 
-double fluxsol = lsol/(4.0*pi*AU*AU);
-double fluxsolcgs = fluxsol*1000;
+const double fluxsol = lsol/(4.0*pi*AU*AU);
+const double fluxsolcgs = fluxsol*1000;
 //double fluxsol = 1;
 
 

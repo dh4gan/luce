@@ -31,8 +31,6 @@ int main(int argc, char* argv[])
     double pi = 3.141592654;
     double twopi = 2.0*pi;
     double year =  3.1556926e7;
-    double unit2sec = year/twopi;
-
 
     int i, fileType;
     int snapshotNumber=0;
@@ -169,7 +167,6 @@ int main(int argc, char* argv[])
 
 		}
 
-	// TODO - setup input of PlanetSurface Object
 	    // If the Body is a World, add a World Object and set up LEBM
 	    if (input.BodyTypes[i] == "PlanetSurface")
 		{
@@ -278,9 +275,13 @@ int main(int argc, char* argv[])
 	// N Body data goes to a single file
 	nBodySystem.outputNBodyData(outputfile, timeyr, input.orbitCentre);
 
+	printf("N Body data written \n");
 	// 2D Flux data goes to separate files for each World in the System
 
 	nBodySystem.output2DFluxData(snapshotNumber, timeyr);
+
+	printf("Flux data written \n");
+
 	}
 
     //Close the file before returning

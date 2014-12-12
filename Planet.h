@@ -5,13 +5,15 @@
  *      Author: dh4gan
  */
 
-#include <iostream>
-#include "Body.h"
+
 
 using namespace std;
 
 #ifndef PLANET_H_
 #define PLANET_H_
+
+#include <iostream>
+#include "Body.h"
 
 class Planet: public Body {
 public:

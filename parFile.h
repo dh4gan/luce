@@ -13,7 +13,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include "System.h"
-#include "Star.h"
 
 #include <fstream>
 #include <sstream>
@@ -29,6 +28,7 @@ public:
 	string SystemName;
 	string fileType;
 
+	// TODO - need to put prepicked location data in as parameters too
 	bool restart;
 	bool illumination;
 	bool tidal;

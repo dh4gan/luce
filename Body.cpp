@@ -8,6 +8,7 @@
 #include "Body.h"
 #include <iostream> // Included for debug lines only
 #include <math.h>
+#include "Constants.h"
 
 Body::Body()
     {

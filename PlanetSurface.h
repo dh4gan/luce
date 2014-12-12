@@ -59,6 +59,7 @@ public:
 	void resetFluxTotals();
 
 	void findSurfaceLocation(double &longitude, double &latitude);
+	void findSurfaceLocation();
 	void calcLongitudeOfNoon(Body* &star, int &istar);
 
 	void calcFlux(int &istar, Body* &star, double &eclipseFraction, double &time, double &dt);
@@ -75,8 +76,6 @@ public:
 	static const int nStarMax = 10;
 	static const int nLatMax = 500;
 	static const int nLongMax = 500;
-
-	static const double fluxunit =17149.12;
 
 protected:
 

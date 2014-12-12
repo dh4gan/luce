@@ -14,7 +14,6 @@
 
 #include "Body.h"
 
-
 class System {
 public:
 	System();
@@ -90,6 +89,7 @@ public:
 
 	// Output Methods
 
+	void initialise2DFluxOutput(string prefixString);
 	void outputNBodyData(FILE* outputfile, double &time, vector<int>orbitCentre);
 	void output2DFluxData(int &snapshotNumber, double &tSnap);
 	void outputIntegratedFluxData();

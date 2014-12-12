@@ -5,9 +5,14 @@
  *      Author: dh4gan
  */
 
+
+
 #include "PlanetSurface.h"
+
 #include <stdio.h>
 #include <sstream>
+
+
 
 PlanetSurface::PlanetSurface() :
 		Body() {
@@ -19,6 +24,9 @@ PlanetSurface::PlanetSurface() :
 	fluxmax = 0.0;
 
 	initialiseArrays();
+
+	// By default, prepicked surface location is on the equator/prime meridian
+	findSurfaceLocation();
 
 }
 PlanetSurface::PlanetSurface(string &namestring, string &typestring, double &m,
@@ -33,6 +41,9 @@ PlanetSurface::PlanetSurface(string &namestring, string &typestring, double &m,
 	fluxmax = 0.0;
 
 	initialiseArrays();
+
+	// By default, prepicked surface location is on the equator/prime meridian
+	findSurfaceLocation();
 
 }
 
@@ -51,6 +62,9 @@ PlanetSurface::PlanetSurface(string &namestring, string &typestring, double &m,
 	fluxmax = 0.0;
 
 	initialiseArrays();
+
+	// By default, prepicked surface location is on the equator/prime meridian
+	findSurfaceLocation();
 
 }
 
@@ -115,7 +129,7 @@ void PlanetSurface::initialiseArrays() {
 
 }
 
-void PlanetSurface::initialiseOutputVariables(string prefixString, vector<Body*> stars)
+void PlanetSurface::initialiseOutputVariables(string prefixString, vector<Body*> bodies)
 
 {
 	/*
@@ -130,10 +144,12 @@ void PlanetSurface::initialiseOutputVariables(string prefixString, vector<Body*>
 
 	for (int istar=0; istar<nStars; istar++){
 
-		// Location Files
-		fileString= prefixString+"_"+stars[istar]->getName()+".location";
-		locationFile[istar]=fopen(fileString.c_str(),"w");
+		if(bodies[istar]->getType()=="Star"){
 
+		// Location Files
+		fileString= prefixString+"_"+bodies[istar]->getName()+".location";
+		locationFile[istar]=fopen(fileString.c_str(),"w");
+		}
 	}
 
 	fileString = prefixString+"_"+getName()+".integrated";
@@ -200,6 +216,15 @@ void PlanetSurface::findSurfaceLocation(double &longitude, double &latitude) {
 		}
 
 	}
+
+}
+
+void PlanetSurface::findSurfaceLocation() {
+
+    double longPick = pi;
+    double latPick = pi/2.0;
+
+    findSurfaceLocation(longPick,latPick);
 
 }
 
@@ -403,7 +428,7 @@ shared(fluxsol,eclipseFraction,darkness,integratedflux,dt) \
 				}
 
 				flux[istar][j][k] = flux[istar][j][k]
-						+ fluxtemp * (1.0 - eclipseFraction) * fluxunit;
+						+ fluxtemp * (1.0 - eclipseFraction) * fluxsol;
 
 				fluxtot[j][k] = fluxtot[j][k] + flux[istar][j][k];
 				//cout << s << "  "<<flux[j][k]<< "  " << eclipseFraction[s] << endl;
@@ -480,4 +505,5 @@ void PlanetSurface::calcIntegratedQuantities(double &dt) {
 	}
 
 }
+
 

@@ -6,8 +6,10 @@
  */
 
 #include "Star.h"
-#include "RadiationConstants.h"
 #include "Constants.h"
+#include "RadiationConstants.h"
+
+
 #include <iostream>
 /* Constructors and Destructor */
 
