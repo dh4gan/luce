@@ -88,6 +88,9 @@ int main(int argc, char* argv[])
     //adding them to the BodyArray
     for (i = 0; i < input.number_bodies; i++)
 	{
+
+	cout << "Here" << endl;
+	cout <<input.BodyNames[i] << "  " << input.BodyTypes[i] << endl;
 	if (fileType == 0 or input.restart)
 	    {
 
@@ -151,7 +154,6 @@ int main(int argc, char* argv[])
 				input.inclination[i], input.longAscend[i],
 				input.Periapsis[i], input.meanAnomaly[i], G,
 				input.totalMass, input.luminosity[i], input.effectiveTemperature[i], input.nLambda));
-
 		}
 
 	    // If the Body is a Planet, add a Planet Object
@@ -186,7 +188,10 @@ int main(int argc, char* argv[])
 
 	    }
 
-	printf("body %s set up \n", BodyArray.back()->getName().c_str());
+	printf("body %i %s set up Type: %s\n Input Type: %s \n",
+		int(BodyArray.size()), BodyArray.back()->getName().c_str(),
+		BodyArray.back()->getType().c_str(),
+		input.BodyTypes[i].c_str());
 
 	}
 
@@ -222,6 +227,9 @@ int main(int argc, char* argv[])
 	fprintf(outputfile, "Number of Bodies, %i \n", input.number_bodies);
 	}
 
+
+    nBodySystem.initialise2DFluxOutput(input.SystemName);
+    nBodySystem.setFluxOutput(input.fullOutput);
 
     // Now loop over snap shots, outputting the system data each time
 
@@ -274,13 +282,9 @@ int main(int argc, char* argv[])
 
 	// N Body data goes to a single file
 	nBodySystem.outputNBodyData(outputfile, timeyr, input.orbitCentre);
-
-	printf("N Body data written \n");
 	// 2D Flux data goes to separate files for each World in the System
 
 	nBodySystem.output2DFluxData(snapshotNumber, timeyr);
-
-	printf("Flux data written \n");
 
 	}
 
@@ -291,7 +295,7 @@ int main(int argc, char* argv[])
 
     // Write integrated Data to files
 
-
+    nBodySystem.outputIntegratedFluxData();
 
     // Write .info file
 

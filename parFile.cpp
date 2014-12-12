@@ -97,7 +97,8 @@ void parFile::readPosFile()
 
     string par;
     string line;
-    string BodyType,BodyName, meltChoice, restartChoice, illumChoice, tidalChoice;
+    string BodyType,BodyName;
+    string meltChoice, restartChoice, illumChoice, tidalChoice, outputChoice;
 
     int bodyIndex;
 
@@ -111,7 +112,7 @@ void parFile::readPosFile()
     restart = false;
     tidal = false;
     illumination = false;
-
+    fullOutput = false;
     strcpy(inputfile, parFileName.c_str());
 
     ifstream myfile(inputfile);
@@ -153,6 +154,15 @@ void parFile::readPosFile()
 	if (par == "NBodyOutput" or par == "OutputFile")
 	    {
 	    iss >> NBodyFile;
+	    }
+	if(par =="FullOutput")
+	    {
+	    iss >> outputChoice;
+	    if(outputChoice=="y")
+		{
+		fullOutput = true;
+		}
+
 	    }
 	if (par == "SnapshotTime")
 	    {
@@ -314,13 +324,15 @@ void parFile::readOrbFile()
     int bodyIndex;
     string par;
     string line;
-    string BodyType, BodyName, meltChoice,restartChoice, illumChoice, tidalChoice;
+    string BodyType, BodyName;
+    string meltChoice,restartChoice, illumChoice, tidalChoice, outputChoice;
 
     NBodyFile = "nbody_output.txt";
     snapshotNumber = 0;
     restart = false;
     tidal = false;
     illumination = false;
+    fullOutput = false;
 
     char inputfile[100];
 
@@ -367,7 +379,15 @@ void parFile::readOrbFile()
 		cout << "Tidal Heating Active" << endl;
 		}
 	    }
+	if(par =="FullOutput")
+	    {
+	    iss >> outputChoice;
+	    if(outputChoice=="y")
+		{
+		fullOutput = true;
+		}
 
+	    }
 	if(par=="NBodyOutput")
 	    {
 	    iss >> NBodyFile;
@@ -532,7 +552,6 @@ void parFile::readOrbFile()
 
     systemTime = 0.0;
 
-    cout << BodyNames[0] << endl;
     if(restart)
 	{
 	setupRestartPositions();

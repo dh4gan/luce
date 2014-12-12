@@ -181,7 +181,7 @@ public:
 
 	virtual void writeFluxFile(int &snapshotNumber, double &time){};
 	virtual void writeSkyFile(FILE* outputSky, int &istar, double &time){};
-	virtual void writeToLocationFiles(double &time){};
+	virtual void writeToLocationFiles(double &time, vector<Body*> bodies){};
 
 	virtual void writeIntegratedFile(){};
 

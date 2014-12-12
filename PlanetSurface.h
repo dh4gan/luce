@@ -67,7 +67,7 @@ public:
 
 	void writeFluxFile(int &snapshotNumber, double &time);
 	void writeSkyFile(FILE* outputSky, int &istar, double &time);
-	void writeToLocationFiles(double &time);
+	void writeToLocationFiles(double &time, vector<Body*> bodies);
 
 	void writeIntegratedFile();
 

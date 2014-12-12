@@ -903,8 +903,11 @@ void System::calc2DFlux(double &time, double &dt)
 	// If body is a PlanetSurface Object, loop through other bodies
 	// and calculate the flux they emit onto its surface
 
+	cout << j << "   " << bodies[j]->getType() << endl;
+
 	if(bodies[j]->getType()=="PlanetSurface")
 	    {
+
 
 	    eclipsefrac = checkForEclipses(j);
 	    for(int i=0; i< bodyCount; i++)
@@ -912,8 +915,10 @@ void System::calc2DFlux(double &time, double &dt)
 
 		if(i==j) continue; // PlanetSurface can't emit flux onto itself
 
+
 		if(bodies[i]->getType()=="Star")
 		    {
+
 		    bodies[j]->calcFlux(i, bodies[i], eclipsefrac[i], time, dt);
 		    }
 
@@ -928,6 +933,26 @@ void System::calc2DFlux(double &time, double &dt)
 	}
 
 
+    }
+
+
+void System::initialise2DFluxOutput(string prefixString)
+    {
+    /*
+     * Written 12/12/14 by dh4gan
+     * Initialises files for all PlanetSurface objects in the system
+     *
+     */
+
+    for (int j = 0; j < bodyCount; j++)
+	{
+
+	if (bodies[j]->getType() == "PlanetSurface")
+	    {
+	    bodies[j]->initialiseOutputVariables(prefixString, bodies);
+	    }
+
+	}
     }
 
 void System::outputNBodyData(FILE *outputfile, double &time, vector<int> orbitCentre)
@@ -995,11 +1020,13 @@ void System::output2DFluxData(int &snapshotNumber, double &tSnap)
 	if(bodies[b]->getType()=="PlanetSurface")
 	    {
 
+	    cout << "Writing flux file " << endl;
 		if(fullOutput){
 	    bodies[b]->writeFluxFile(snapshotNumber, tSnap);
 		}
 
-		bodies[b]->writeToLocationFiles(tSnap);
+		 cout << "Writing flux file " << endl;
+		bodies[b]->writeToLocationFiles(tSnap, bodies);
 
 	    }
 

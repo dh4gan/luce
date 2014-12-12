@@ -295,22 +295,27 @@ void PlanetSurface::writeSkyFile(FILE* outputSky, int &istar, double &time) {
 
 }
 
-void PlanetSurface::writeToLocationFiles(double &time) {
+void PlanetSurface::writeToLocationFiles(double &time, vector<Body*> bodies) {
 	/*
 	 * Written 01/12/14 by dh4gan
 	 * writes prepicked location data for a timestep
 	 */
 
 
-	for (int istar=0; istar< nStars; istar++)
+	for (int istar = 0; istar < nStars; istar++)
 	{
-	fprintf(locationFile[istar],
-			"%+.4E  %+.4E  %+.4E  %+.4E  %+.4E  %+.4E  %+.4E \n", time,
-			longitude[iLongPick], latitude[iLatPick],
-			flux[istar][iLongPick][iLatPick],
-			altitude[istar][iLongPick][iLatPick],
-			azimuth[istar][iLongPick][iLatPick], hourAngle[istar][iLongPick]);
-	fflush(locationFile[istar]);
+	if (bodies[istar]->getType() == "Star")
+	    {
+
+	    fprintf(locationFile[istar],
+		    "%+.4E  %+.4E  %+.4E  %+.4E  %+.4E  %+.4E  %+.4E \n", time,
+		    longitude[iLongPick], latitude[iLatPick],
+		    flux[istar][iLongPick][iLatPick],
+		    altitude[istar][iLongPick][iLatPick],
+		    azimuth[istar][iLongPick][iLatPick],
+		    hourAngle[istar][iLongPick]);
+	    fflush(locationFile[istar]);
+	    }
 	}
 
 }
@@ -425,6 +430,7 @@ shared(fluxsol,eclipseFraction,darkness,integratedflux,dt) \
 				if (rdotn > 0.0) {
 
 					fluxtemp = lstar * rdotn / (4.0 * pi * magpos * magpos);
+					cout << fluxtemp << "   " << eclipseFraction << endl;
 				}
 
 				flux[istar][j][k] = flux[istar][j][k]

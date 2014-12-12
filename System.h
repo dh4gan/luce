@@ -54,6 +54,8 @@ public:
 
 	void setIllumination(bool illum){planetaryIlluminationOn = illum;}
 
+	void setFluxOutput(bool full){fullOutput = full;}
+
 	// Standard cloning method
 	virtual System* Clone() { return new System(*this); }
 

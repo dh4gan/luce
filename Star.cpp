@@ -37,6 +37,8 @@ Star::Star(string &namestring, string &typestring, double &m, double &rad,Vector
 
 Star::Star(string &namestring, string &typestring, double &m, double &rad,Vector3D  &pos, Vector3D &vel, double &lum, double &T, int &n) :
 	Body(namestring, typestring, m, rad, pos, vel) {
+
+
 	Teff = T;
 	nlambda = n;
 	I_lambda = vector<double> (nlambda, 0.0);
@@ -52,6 +54,9 @@ Star::Star(string &namestring, string &typestring, double &m, double &rad,
 	int &n){
 
     Body(namestring,typestring,m, rad, semimaj, ecc, inc,longascend,argper, meananom, G, totalMass);
+
+
+
     Teff = T;
     nlambda = n;
     I_lambda = vector<double> (nlambda, 0.0);
@@ -67,6 +72,9 @@ Star::Star(string &namestring, string &typestring, double &m, double &rad,
 	int &n){
 
     Body(namestring,typestring,m, rad, semimaj, ecc, inc,longascend,argper, meananom, G, totalMass);
+
+    cout << "TYPE: " << getType() << "   " << typestring << endl;
+    type = "Star";
     Teff = T;
     	nlambda = n;
     	I_lambda = vector<double> (nlambda, 0.0);
