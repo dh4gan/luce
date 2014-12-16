@@ -19,7 +19,7 @@ const double msol = 1.99e30;
 const double lsol = 3.826e26;
 const double rsol = 6.955e8;
 
-const double fluxsol = lsol/(4.0*pi*AU*AU);
+const double fluxsol = lsol/(AU*AU);
 const double fluxsolcgs = fluxsol*1000;
 //double fluxsol = 1;
 

@@ -86,6 +86,7 @@ public:
 	void evolveSystem(double tbegin, double tend);
 	void evolveSystem(double dt);
 
+	void calcLongitudesOfNoon();
 	void calc2DFlux(double &time, double &dt);
 
 

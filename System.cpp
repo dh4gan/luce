@@ -888,6 +888,38 @@ void System::calcPlanetaryEquilibriumTemperatures()
     }
 
 
+void System::calcLongitudesOfNoon()
+    {
+    for (int j = 0; j < bodyCount; j++)
+	{
+
+	// If body is a PlanetSurface Object, loop through other bodies
+	// and calculate the flux they emit onto its surface
+
+	if (bodies[j]->getType() == "PlanetSurface")
+	    {
+
+	    for (int i = 0; i < bodyCount; i++)
+		{
+
+		if (bodies[i]->getType() == "Star")
+		    {
+		    bodies[j]->calcLongitudeOfNoon(bodies[i], i);
+		    }
+
+		if (bodies[i]->getType() == "Planet"
+			and planetaryIlluminationOn)
+		    {
+		    bodies[j]->calcLongitudeOfNoon(bodies[i], i);
+		    }
+		}
+
+	    }
+	}
+
+
+    }
+
 void System::calc2DFlux(double &time, double &dt)
     {
     /*
@@ -954,6 +986,9 @@ void System::initialise2DFluxOutput(string prefixString)
 	    }
 
 	}
+
+    calcLongitudesOfNoon();
+
     }
 
 void System::outputNBodyData(FILE *outputfile, double &time, vector<int> orbitCentre)

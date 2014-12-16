@@ -251,8 +251,6 @@ int main(int argc, char* argv[])
 	while (timeunit < tStop)
 	    {
 
-	    timeyr = timeunit/twopi;
-
 	    // Evolve the NBody particles for the minimum timestep in code units
 	    nBodySystem.evolveSystem(dtunit);
 
@@ -263,8 +261,8 @@ int main(int argc, char* argv[])
 	    nBodySystem.calcNBodyTimestep(dtmax);
 	    dtunit = nBodySystem.getTimestep();
 
+	    timeyr = timeunit/twopi;
 	    dtyr = dtunit/twopi;
-
 
 	    }
 

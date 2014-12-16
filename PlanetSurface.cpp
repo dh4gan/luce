@@ -383,6 +383,7 @@ void PlanetSurface::calcFlux(int &istar, Body* &star, double &eclipseFraction,
 	long_apparent = fmod(
 		longitude[j] - noon[istar] + 2.0 * pi * time / Pspin, 2.0 * pi);
 
+
 	// Calculate hour angle - distance between current longitude and noon
 
 	// Distance between longitude and noon = hourAngle
