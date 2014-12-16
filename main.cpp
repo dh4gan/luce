@@ -37,7 +37,7 @@ int main(int argc, char* argv[])
 
     double tStop;
     double timeunit,timeyr;
-    double dtyr,dtunit;
+    double dtyr,dtunit, dtflux;
     double tSnap, tMax, dtmax;
 
 
@@ -89,8 +89,6 @@ int main(int argc, char* argv[])
     for (i = 0; i < input.number_bodies; i++)
 	{
 
-	cout << "Here" << endl;
-	cout <<input.BodyNames[i] << "  " << input.BodyTypes[i] << endl;
 	if (fileType == 0 or input.restart)
 	    {
 
@@ -98,7 +96,6 @@ int main(int argc, char* argv[])
 
 	    body_i_position = input.getBodyPosition(i);
 	    body_i_velocity = input.getBodyVelocity(i);
-
 
 	    // If the Body is a Star, add a Star Object
 
@@ -125,7 +122,6 @@ int main(int argc, char* argv[])
 		{
 		// Code will halt if initial temperature zero
 		// this stops incomplete params files running successfully
-
 
 		BodyArray.push_back(
 			new PlanetSurface(input.BodyNames[i],
@@ -188,11 +184,6 @@ int main(int argc, char* argv[])
 
 	    }
 
-	printf("body %i %s set up Type: %s\n Input Type: %s \n",
-		int(BodyArray.size()), BodyArray.back()->getName().c_str(),
-		BodyArray.back()->getType().c_str(),
-		input.BodyTypes[i].c_str());
-
 	}
 
     // Set up System object using BodyArray
@@ -237,7 +228,7 @@ int main(int argc, char* argv[])
     tMax = tMax * twopi; // Convert maximum time to code units
     tSnap = tSnap*twopi; // Convert snapshot time to code units
 
-    dtmax = 0.1*input.snapshotTime;
+    dtmax = 0.1*input.snapshotTime*twopi;
 
     // Timesteps will be calculated in NBody units, and converted back to years for Flux calculation
 
@@ -254,17 +245,19 @@ int main(int argc, char* argv[])
     while (timeunit < tMax)
 	{
 	tStop = timeunit + tSnap;
+
+	dtflux = 0.0;
+
 	while (timeunit < tStop)
 	    {
 
 	    timeyr = timeunit/twopi;
-	    // Evolve the LEBMs in the system for the minimum timestep in seconds
-	    nBodySystem.calc2DFlux(timeyr, dtyr);
 
 	    // Evolve the NBody particles for the minimum timestep in code units
 	    nBodySystem.evolveSystem(dtunit);
 
 	    timeunit = timeunit + dtunit;
+	    dtflux = dtflux + dtyr;
 
 	    // Recalculate the minimum timestep
 	    nBodySystem.calcNBodyTimestep(dtmax);
@@ -275,7 +268,12 @@ int main(int argc, char* argv[])
 
 	    }
 
-	printf("Time: %+.4E yr, Combined Timestep: %+.4E s, %+.4E units\n",timeyr, dtyr, dtunit);
+	printf("Time: %+.4E yr, Combined Timestep: %+.4E years, %+.4E units\n",timeyr, dtyr, dtunit);
+
+	// Calculate 2D Fluxes
+	nBodySystem.calc2DFlux(timeyr, dtflux);
+
+
 	// Output data to files
 	snapshotNumber++;
 	timeyr = timeunit/twopi;

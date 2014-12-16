@@ -98,7 +98,6 @@ Body::Body(string &namestring, string &typestring, double &m, double &rad, doubl
 
     name = namestring;
     type = typestring;
-    cout << "IN BODY " << type << endl;
     mass = m;
     radius = rad;
     collisionBounce = true;

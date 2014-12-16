@@ -535,6 +535,7 @@ void parFile::readOrbFile()
 	else if (par == "RotationPeriod")
 	    {
 	    iss >> val_i;
+	    val_i = val_i/365.24;
 	    rotationPeriod[bodyIndex] = val_i;
 
 	    }

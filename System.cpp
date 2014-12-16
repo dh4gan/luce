@@ -887,6 +887,7 @@ void System::calcPlanetaryEquilibriumTemperatures()
 
     }
 
+
 void System::calc2DFlux(double &time, double &dt)
     {
     /*
@@ -903,12 +904,10 @@ void System::calc2DFlux(double &time, double &dt)
 	// If body is a PlanetSurface Object, loop through other bodies
 	// and calculate the flux they emit onto its surface
 
-	cout << j << "   " << bodies[j]->getType() << endl;
-
 	if(bodies[j]->getType()=="PlanetSurface")
 	    {
 
-
+	    bodies[j]->resetFluxTotals();
 	    eclipsefrac = checkForEclipses(j);
 	    for(int i=0; i< bodyCount; i++)
 		{
@@ -928,6 +927,8 @@ void System::calc2DFlux(double &time, double &dt)
 		    }
 
 		}
+
+	    bodies[j]->calcIntegratedQuantities(dt);
 	    }
 
 	}
@@ -1020,12 +1021,10 @@ void System::output2DFluxData(int &snapshotNumber, double &tSnap)
 	if(bodies[b]->getType()=="PlanetSurface")
 	    {
 
-	    cout << "Writing flux file " << endl;
 		if(fullOutput){
 	    bodies[b]->writeFluxFile(snapshotNumber, tSnap);
 		}
 
-		 cout << "Writing flux file " << endl;
 		bodies[b]->writeToLocationFiles(tSnap, bodies);
 
 	    }

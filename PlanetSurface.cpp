@@ -95,13 +95,13 @@ void PlanetSurface::initialiseArrays() {
 
 	// 2D arrays
 
-	for (int j = 0; j < nLongMax; j++) {
+	for (int j = 0; j < nLongitude; j++) {
 
 		for (int istar = 0; istar < nStarMax; istar++) {
 			hourAngle[istar][j] = 0.0;
 		}
 
-		for (int k = 0; k < nLatMax; k++) {
+		for (int k = 0; k < nLatitude; k++) {
 			fluxtot[j][k] = 0.0;
 			integratedflux[j][k] = 0.0;
 			darkness[j][k] = 0.0;
@@ -112,9 +112,9 @@ void PlanetSurface::initialiseArrays() {
 	//3D arrays
 
 	for (int istar = 0; istar < nStarMax; istar++) {
-		for (int j = 0; j < nLongMax; j++) {
+		for (int j = 0; j < nLongitude; j++) {
 
-			for (int k = 0; k < nLatMax; k++) {
+			for (int k = 0; k < nLatitude; k++) {
 				flux[istar][j][k] = 0.0;
 				altitude[istar][j][k] = 0.0;
 				azimuth[istar][j][k] = 0.0;
@@ -375,35 +375,38 @@ void PlanetSurface::calcFlux(int &istar, Body* &star, double &eclipseFraction,
 
 	// Loop over longitude and latitude
 
-	for (int j = 0; j < nLongitude; j++) {
+    for (int j = 0; j < nLongitude; j++)
+	{
+
+	// Rotate planet according to its spin period
+
+	long_apparent = fmod(
+		longitude[j] - noon[istar] + 2.0 * pi * time / Pspin, 2.0 * pi);
+
+	// Calculate hour angle - distance between current longitude and noon
+
+	// Distance between longitude and noon = hourAngle
+	// hour angle between -180 and +180
+
+	Vector3D longSurface(cos(long_apparent), sin(long_apparent), 0.0);
+
+	rdotn = unitpos.dotProduct(longSurface);
+	hourAngle[istar][j] = safeAcos(rdotn);
+
+	if ((unitpos.crossProduct(longSurface)).dotProduct(zvector) > 0.0)
+	    {
+	    hourAngle[istar][j] = -hourAngle[istar][j];
+	    }
+
 #pragma omp parallel default(none) \
 shared(j,longitude,latitude,hourAngle,flux,nLatitude)\
 shared(noon,altitude,azimuth,time,obliquity,nStars) \
 shared(fluxsol,eclipseFraction,darkness,integratedflux,dt) \
 	private(k,s,fluxtemp) \
 	reduction(max: fluxmax)
-		{
-			// Rotate planet according to its spin period
+	{
+#pragma omp for schedule(runtime) ordered
 
-			long_apparent = fmod(
-					longitude[j] - noon[istar] + 2.0 * pi * time / Pspin,
-					2.0 * pi);
-
-			// Calculate hour angle - distance between current longitude and noon
-
-			// Distance between longitude and noon = hourAngle
-			// hour angle between -180 and +180
-
-			Vector3D longSurface(cos(long_apparent), sin(long_apparent), 0.0);
-
-			rdotn = unitpos.dotProduct(longSurface);
-			hourAngle[istar][j] = safeAcos(rdotn);
-
-			if ((unitpos.crossProduct(longSurface)).dotProduct(zvector) > 0.0) {
-				hourAngle[istar][j] = -hourAngle[istar][j];
-			}
-
-#pragma omp for schedule(runtime) ordered*/
 			for (int k = 0; k < nLatitude; k++) {
 
 				// construct surface normal vector at this longitude and latitude
@@ -430,14 +433,17 @@ shared(fluxsol,eclipseFraction,darkness,integratedflux,dt) \
 				if (rdotn > 0.0) {
 
 					fluxtemp = lstar * rdotn / (4.0 * pi * magpos * magpos);
-					cout << fluxtemp << "   " << eclipseFraction << endl;
-				}
 
-				flux[istar][j][k] = flux[istar][j][k]
-						+ fluxtemp * (1.0 - eclipseFraction) * fluxsol;
+				}
+				else
+				    {
+				    fluxtemp = 0.0;
+				    }
+
+				flux[istar][j][k] = fluxtemp * (1.0 - eclipseFraction) * fluxsol;
 
 				fluxtot[j][k] = fluxtot[j][k] + flux[istar][j][k];
-				//cout << s << "  "<<flux[j][k]<< "  " << eclipseFraction[s] << endl;
+
 
 				if (fluxtot[j][k] > fluxmax) {
 					fluxmax = fluxtot[j][k];
@@ -495,7 +501,7 @@ void PlanetSurface::calcIntegratedQuantities(double &dt) {
 		private(k,s,fluxtemp) \
 		reduction(max: fluxmax)
 		{
-#pragma omp for schedule(runtime) ordered*/
+#pragma omp for schedule(runtime) ordered
 			for (int k = 0; k < nLatitude; k++) {
 
 				integratedflux[j][k] = integratedflux[j][k]

@@ -73,7 +73,6 @@ Star::Star(string &namestring, string &typestring, double &m, double &rad,
 
     Body(namestring,typestring,m, rad, semimaj, ecc, inc,longascend,argper, meananom, G, totalMass);
 
-    cout << "TYPE: " << getType() << "   " << typestring << endl;
     type = "Star";
     Teff = T;
     	nlambda = n;
