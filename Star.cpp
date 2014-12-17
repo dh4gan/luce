@@ -16,8 +16,9 @@
 Star::Star() :
 	Body() {
 }
-Star::Star(string &namestring, string &typestring, double &m, double &rad, Vector3D  &pos, Vector3D  &vel) :
-	Body(namestring, typestring, m, rad, pos, vel) {
+Star::Star(string &namestring, double &m, double &rad, Vector3D  &pos, Vector3D  &vel) :
+	Body(namestring, m, rad, pos, vel) {
+	type = "Star";
 	nlambda = 1000;
 	I_lambda = vector<double> (nlambda, 0.0);
 	Teff = 5000.0;
@@ -25,8 +26,10 @@ Star::Star(string &namestring, string &typestring, double &m, double &rad, Vecto
 
 }
 
-Star::Star(string &namestring, string &typestring, double &m, double &rad,Vector3D  &pos, Vector3D &vel, double &T, int &n) :
-	Body(namestring, typestring, m, rad, pos, vel) {
+Star::Star(string &namestring, double &m, double &rad,Vector3D  &pos, Vector3D &vel, double &T, int &n) :
+	Body(namestring, m, rad, pos, vel) {
+
+	type = "Star";
 	Teff = T;
 	nlambda = n;
 	I_lambda = vector<double> (nlambda, 0.0);
@@ -35,10 +38,10 @@ Star::Star(string &namestring, string &typestring, double &m, double &rad,Vector
 
 }
 
-Star::Star(string &namestring, string &typestring, double &m, double &rad,Vector3D  &pos, Vector3D &vel, double &lum, double &T, int &n) :
-	Body(namestring, typestring, m, rad, pos, vel) {
+Star::Star(string &namestring, double &m, double &rad,Vector3D  &pos, Vector3D &vel, double &lum, double &T, int &n) :
+	Body(namestring, m, rad, pos, vel) {
 
-
+    type = "Star";
 	Teff = T;
 	nlambda = n;
 	I_lambda = vector<double> (nlambda, 0.0);
@@ -48,14 +51,14 @@ Star::Star(string &namestring, string &typestring, double &m, double &rad,Vector
 }
 
 
-Star::Star(string &namestring, string &typestring, double &m, double &rad,
+Star::Star(string &namestring, double &m, double &rad,
 	double semimaj, double ecc, double inc, double longascend,
 	double argper, double meananom, double G, double totalMass, double &T,
 	int &n){
 
-    Body(namestring,typestring,m, rad, semimaj, ecc, inc,longascend,argper, meananom, G, totalMass);
+    Body(namestring,m, rad, semimaj, ecc, inc,longascend,argper, meananom, G, totalMass);
 
-
+    type = "Star";
 
     Teff = T;
     nlambda = n;
@@ -66,22 +69,23 @@ Star::Star(string &namestring, string &typestring, double &m, double &rad,
 
 }
 
-Star::Star(string &namestring, string &typestring, double &m, double &rad,
-	double semimaj, double ecc, double inc, double longascend,
-	double argper, double meananom, double G, double totalMass,double &lum, double &T,
-	int &n){
+Star::Star(string &namestring, double &m, double &rad, double semimaj,
+	double ecc, double inc, double longascend, double argper,
+	double meananom, double G, double totalMass, double &lum, double &T,
+	int &n)
+    {
 
-    Body(namestring,typestring,m, rad, semimaj, ecc, inc,longascend,argper, meananom, G, totalMass);
+    Body(namestring, m, rad, semimaj, ecc, inc, longascend, argper, meananom, G,
+	    totalMass);
 
     type = "Star";
     Teff = T;
-    	nlambda = n;
-    	I_lambda = vector<double> (nlambda, 0.0);
+    nlambda = n;
+    I_lambda = vector<double>(nlambda, 0.0);
 
-    	luminosity = lum;
+    luminosity = lum;
 
-
-}
+    }
 
 
 Star::~Star() {

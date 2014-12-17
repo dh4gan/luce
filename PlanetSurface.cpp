@@ -29,10 +29,11 @@ PlanetSurface::PlanetSurface() :
 	findSurfaceLocation();
 
 }
-PlanetSurface::PlanetSurface(string &namestring, string &typestring, double &m,
+PlanetSurface::PlanetSurface(string &namestring, double &m,
 		double &rad, Vector3D &pos, Vector3D &vel, int &nstar, int &nlat,
 		int &nlong, double &spin, double &obliq) :
-		Body(namestring, typestring, m, rad, pos, vel) {
+		Body(namestring, m, rad, pos, vel) {
+	type = "PlanetSurface";
 	nStars = nstar;
 	nLatitude = nlat;
 	nLongitude = nlong;
@@ -47,13 +48,14 @@ PlanetSurface::PlanetSurface(string &namestring, string &typestring, double &m,
 
 }
 
-PlanetSurface::PlanetSurface(string &namestring, string &typestring, double &m,
+PlanetSurface::PlanetSurface(string &namestring, double &m,
 		double &rad, double semimaj, double ecc, double inc, double trueAnom,
 		double longascend, double argper, double G, double totalMass,
 		int &nstar, int &nlat, int &nlong, double &spin, double &obliq) :
-		Body(namestring, typestring, m, rad, semimaj, ecc, inc, trueAnom,
+		Body(namestring, m, rad, semimaj, ecc, inc, trueAnom,
 				longascend, argper, G, totalMass) {
 
+	type = "PlanetSurface";
 	nStars = nstar;
 	nLatitude = nlat;
 	nLongitude = nlong;

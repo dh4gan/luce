@@ -17,10 +17,10 @@ class PlanetSurface: public Body {
 public:
 
 	PlanetSurface();
-	PlanetSurface(string &namestring, string &typestring, double &m, double &rad, Vector3D &pos,
+	PlanetSurface(string &namestring, double &m, double &rad, Vector3D &pos,
 			Vector3D &vel, int &nstar, int &nlat, int &nlong, double &spin,
 			double &obliq);
-	PlanetSurface(string &namestring, string &typestring, double &m, double &rad, double semimaj,
+	PlanetSurface(string &namestring, double &m, double &rad, double semimaj,
 			double ecc, double inc, double trueAnom, double longascend,
 			double argper, double G, double totalMass, int &nstar, int &nlat, int &nlong, double &spin,
 			double &obliq);

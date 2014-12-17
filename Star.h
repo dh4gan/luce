@@ -21,27 +21,27 @@ public:
 
     // Position Constructors
 
-    Star(string &namestring, string &typestring, double &m, double &rad,
+    Star(string &namestring, double &m, double &rad,
 	    Vector3D &pos, Vector3D &vel);
 
     //Without Luminosity
-    Star(string &namestring, string &typestring, double &m, double &rad,
+    Star(string &namestring, double &m, double &rad,
 	    Vector3D &pos, Vector3D &vel, double &T, int &n);
 
     // With Luminosity
-    Star(string &namestring, string &typestring, double &m, double &rad,
+    Star(string &namestring,double &m, double &rad,
     	    Vector3D &pos, Vector3D &vel, double &lum, double &T, int &n);
 
     // Orbital Constructors
 
     // Without Luminosity
-    Star(string &namestring, string &typestring, double &m, double &rad,
+    Star(string &namestring, double &m, double &rad,
 	    double semimaj, double ecc, double inc, double longascend,
 	    double argper, double meananom, double G, double totalMass,
 	    double &T, int &n);
 
     // With Luminosity
-    Star(string &namestring, string &typestring, double &m, double &rad,
+    Star(string &namestring, double &m, double &rad,
 	    double semimaj, double ecc, double inc, double longascend,
 	    double argper, double meananom, double G, double totalMass,
 	    double &lum, double &T, int &n);

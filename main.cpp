@@ -102,8 +102,7 @@ int main(int argc, char* argv[])
 	    if (input.BodyTypes[i] == "Star")
 		{
 		BodyArray.push_back(
-			new Star(input.BodyNames[i], input.BodyTypes[i],
-				input.Mass[i], input.Radius[i], body_i_position,
+			new Star(input.BodyNames[i],input.Mass[i], input.Radius[i], body_i_position,
 				body_i_velocity, input.luminosity[i],input.effectiveTemperature[i], input.nLambda));
 		}
 
@@ -111,8 +110,7 @@ int main(int argc, char* argv[])
 	    if (input.BodyTypes[i] == "Planet")
 		{
 		BodyArray.push_back(
-			new Planet(input.BodyNames[i], input.BodyTypes[i],
-				input.Mass[i], input.Radius[i], body_i_position,
+			new Planet(input.BodyNames[i], input.Mass[i], input.Radius[i], body_i_position,
 				body_i_velocity, input.albedo[i]));
 		}
 
@@ -124,8 +122,7 @@ int main(int argc, char* argv[])
 		// this stops incomplete params files running successfully
 
 		BodyArray.push_back(
-			new PlanetSurface(input.BodyNames[i],
-				input.BodyTypes[i], input.Mass[i],
+			new PlanetSurface(input.BodyNames[i], input.Mass[i],
 				input.Radius[i], body_i_position,
 				body_i_velocity, input.number_bodies,
 				input.nLatitude, input.nLongitude,
@@ -144,7 +141,7 @@ int main(int argc, char* argv[])
 		{
 
 		BodyArray.push_back(
-			new Star(input.BodyNames[i], input.BodyTypes[i],
+			new Star(input.BodyNames[i],
 				input.Mass[i], input.Radius[i],
 				input.semiMajorAxis[i], input.eccentricity[i],
 				input.inclination[i], input.longAscend[i],
@@ -156,7 +153,7 @@ int main(int argc, char* argv[])
 	    if (input.BodyTypes[i] == "Planet")
 		{
 		BodyArray.push_back(
-			new Planet(input.BodyNames[i], input.BodyTypes[i],
+			new Planet(input.BodyNames[i],
 				input.Mass[i], input.Radius[i],
 				input.semiMajorAxis[i], input.eccentricity[i],
 				input.inclination[i], input.longAscend[i],
@@ -171,8 +168,7 @@ int main(int argc, char* argv[])
 
 
 		BodyArray.push_back(
-			new PlanetSurface(input.BodyNames[i],
-				input.BodyTypes[i], input.Mass[i],
+			new PlanetSurface(input.BodyNames[i], input.Mass[i],
 				input.Radius[i], input.semiMajorAxis[i],
 				input.eccentricity[i], input.inclination[i],
 				input.longAscend[i], input.Periapsis[i],
