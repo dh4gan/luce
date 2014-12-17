@@ -54,9 +54,7 @@ Star::Star(string &namestring, double &m, double &rad,Vector3D  &pos, Vector3D &
 Star::Star(string &namestring, double &m, double &rad,
 	double semimaj, double ecc, double inc, double longascend,
 	double argper, double meananom, double G, double totalMass, double &T,
-	int &n){
-
-    Body(namestring,m, rad, semimaj, ecc, inc,longascend,argper, meananom, G, totalMass);
+	int &n):Body(namestring,m, rad, semimaj, ecc, inc,longascend,argper, meananom, G, totalMass){
 
     type = "Star";
 
@@ -69,14 +67,12 @@ Star::Star(string &namestring, double &m, double &rad,
 
 }
 
-Star::Star(string &namestring, double &m, double &rad, double semimaj,
+Star::Star(string namestring, double m, double rad, double semimaj,
 	double ecc, double inc, double longascend, double argper,
 	double meananom, double G, double totalMass, double &lum, double &T,
-	int &n)
-    {
-
+	int &n):
     Body(namestring, m, rad, semimaj, ecc, inc, longascend, argper, meananom, G,
-	    totalMass);
+	    totalMass){
 
     type = "Star";
     Teff = T;

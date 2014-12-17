@@ -41,7 +41,7 @@ public:
 	    double &T, int &n);
 
     // With Luminosity
-    Star(string &namestring, double &m, double &rad,
+    Star(string namestring, double m, double rad,
 	    double semimaj, double ecc, double inc, double longascend,
 	    double argper, double meananom, double G, double totalMass,
 	    double &lum, double &T, int &n);

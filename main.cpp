@@ -289,8 +289,9 @@ int main(int argc, char* argv[])
 
     nBodySystem.outputIntegratedFluxData();
 
-    // Write .info file
+    nBodySystem.outputInfoFile(snapshotNumber);
 
+    // Write .info file
     string fileString = input.SystemName+".info";
     FILE *infoFile = fopen(fileString.c_str(), "w");
 

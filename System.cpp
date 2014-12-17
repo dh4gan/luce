@@ -1086,6 +1086,50 @@ void System::outputIntegratedFluxData() {
 
 }
 
+void System::outputInfoFile(int nTime)
+    {
+
+    /*
+     * Written 17/12/14 by dh4gan
+     * Writes an info file for use in plotting 2D flux data
+     *
+     */
+
+       string fileString = getName()+".info";
+       infoFile = fopen(fileString.c_str(), "w");
+
+       double globalFluxMax= 0.0;
+       int nStars = countStars();
+
+       	fprintf(infoFile,"%i \n", nTime);
+       	fprintf(infoFile,"%i \n", nStars);
+
+       for (int s = 0; s < bodyCount; s++)
+   	{
+   	if (bodies[s]->getType() == "Star")
+   	    {
+   	    fprintf(infoFile, "%s \n", bodies[s]->getName().c_str());
+   	    fprintf(infoFile, "%+.4E %+.4E %+.4E \n", bodies[s]->getRadius(),
+   		 bodies[s]->getTeff(),
+   		bodies[s]->calculatePeakWavelength());
+   	    }
+
+   	if (bodies[s]->getType() == "PlanetSurface")
+   	    {
+   	    if (bodies[s]->getFluxMax() > globalFluxMax)
+   		{
+   		globalFluxMax = bodies[s]->getFluxMax();
+   		}
+
+   	    }
+   	}
+
+       	fprintf(infoFile, "%+.4E \n", globalFluxMax);
+       	fclose(infoFile);
+
+
+    }
+
 int System::countStars()
     {
     /*

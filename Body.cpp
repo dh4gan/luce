@@ -12,10 +12,11 @@
 
 Body::Body()
     {
+
     name = "Body";
     type = "Body";
     mass = 1.0;
-    radius = 1.0;
+    radius = 0.8;
     collisionBounce = true;
 
     Vector3D zero;
@@ -49,8 +50,8 @@ Body::Body()
 
     }
 
-Body::Body(string &namestring, double &m, double &rad, Vector3D &pos,
-	Vector3D &vel)
+Body::Body(string namestring, double m, double rad, Vector3D pos,
+	Vector3D vel)
     {
     Vector3D zero;
     name = namestring;
@@ -90,13 +91,14 @@ Body::Body(string &namestring, double &m, double &rad, Vector3D &pos,
     }
 
 
-Body::Body(string &namestring, double &m, double &rad, double semimaj, double ecc, double inc, double longascend,
+Body::Body(string namestring, double m, double rad, double semimaj, double ecc, double inc, double longascend,
 				double argper, double meananom, double G, double totalMass)
     {
 
     Vector3D zero;
 
     name = namestring;
+
     type = "Body";
     mass = m;
     radius = rad;
@@ -124,6 +126,7 @@ Body::Body(string &namestring, double &m, double &rad, double semimaj, double ec
 
     calcTrueAnomaly();
     calcVectorFromOrbit(G, totalMass);
+
   }
 
 Body::~Body()
