@@ -20,13 +20,21 @@ parFile::parFile()
     restart = false;
     illumination = false;
     tidal = false;
+    fullOutput = false;
 
     systemTime = 0.0;
     maximumTime = 0.0;
     snapshotTime = 0.0;
     snapshotNumber =0;
 
+    nLambda = 0;
+    nLongitude = 0;
+    nLatitude = 0;
+
     number_bodies = 0;
+
+    latTrack = piby2;
+    longTrack = pi;
 
     }
 
@@ -38,14 +46,20 @@ parFile::parFile(string name)
     restart = false;
     illumination = false;
     tidal = false;
+    fullOutput = false;
 
     systemTime = 0.0;
     maximumTime = 0.0;
     snapshotTime = 0.0;
     snapshotNumber = 0;
 
-
+    nLambda = 0;
+    nLongitude = 0;
+    nLatitude = 0;
     number_bodies = 0;
+
+    latTrack = piby2;
+    longTrack = pi;
 
     }
 
@@ -224,6 +238,15 @@ void parFile::readPosFile()
 	else if(par =="NLambda")
 	    {
 	    iss >> nLambda;
+	    }
+
+	else if (par == "LongTrack")
+	    {
+	    iss >> longTrack;
+	    }
+	else if (par == "LatTrack")
+	    {
+	    iss >> latTrack;
 	    }
 
 	else if(par=="BodyName")
@@ -447,10 +470,19 @@ void parFile::readOrbFile()
 		iss >> nLatitude;
 	}
 
-	else if(par =="NLambda")
-		    {
-		    iss >> nLambda;
-		    }
+	else if (par == "NLambda")
+	    {
+	    iss >> nLambda;
+	    }
+
+	else if (par == "LongTrack")
+	    {
+	    iss >> longTrack;
+	    }
+	else if (par == "LatTrack")
+	    {
+	    iss >> latTrack;
+	    }
 	else if (par == "BodyName")
 	    {
 	    iss >> BodyName;

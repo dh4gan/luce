@@ -39,7 +39,8 @@ System::System()
     accelerationCOM = zeroVector;
 
     planetaryIlluminationOn = false;
-
+    fullOutput = false;
+    infoFile = NULL;
 
     }
 
@@ -76,6 +77,8 @@ System::System(string &namestring, vector<Body*> &bodyarray)
     accelerationCOM = zeroVector;
 
     planetaryIlluminationOn = false;
+    fullOutput = false;
+    infoFile = NULL;
     }
 
 System::~System()

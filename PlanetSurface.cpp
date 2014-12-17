@@ -178,15 +178,6 @@ void PlanetSurface::resetFluxTotals() {
 
 }
 
-// Simple function to stop acos becoming infinite if abs(x) > 1.0
-static double safeAcos(double x) {
-	if (x < -1.0)
-		x = -1.0;
-	else if (x > 1.0)
-		x = 1.0;
-	return acos(x);
-}
-
 // Simple function to find array indices corresponding with input longitude and latitude
 void PlanetSurface::findSurfaceLocation(double &longitude, double &latitude) {
 
@@ -309,8 +300,10 @@ void PlanetSurface::writeToLocationFiles(double &time, vector<Body*> bodies) {
 	if (bodies[istar]->getType() == "Star")
 	    {
 
+	    Vector3D pos = bodies[istar]->getPosition();
 	    fprintf(locationFile[istar],
-		    "%+.4E  %+.4E  %+.4E  %+.4E  %+.4E  %+.4E  %+.4E \n", time,
+		    "%+.4E  %+.4E  %+.4E %+.4E  %+.4E  %+.4E  %+.4E  %+.4E  %+.4E  %+.4E \n",
+		    time, pos.elements[0], pos.elements[1], pos.elements[2],
 		    longitude[iLongPick], latitude[iLatPick],
 		    flux[istar][iLongPick][iLatPick],
 		    altitude[istar][iLongPick][iLatPick],

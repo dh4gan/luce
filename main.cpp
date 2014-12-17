@@ -30,7 +30,6 @@ int main(int argc, char* argv[])
     double G = 1;
     double pi = 3.141592654;
     double twopi = 2.0*pi;
-    double year =  3.1556926e7;
 
     int i, fileType;
     int snapshotNumber=0;
@@ -236,7 +235,6 @@ int main(int argc, char* argv[])
     dtyr = dtunit/twopi;
     timeunit = 0.0;
 
-
     printf("System set up: Running \n");
     while (timeunit < tMax)
 	{
@@ -267,64 +265,26 @@ int main(int argc, char* argv[])
 	// Calculate 2D Fluxes
 	nBodySystem.calc2DFlux(timeyr, dtflux);
 
-
 	// Output data to files
 	snapshotNumber++;
 	timeyr = timeunit/twopi;
 
 	// N Body data goes to a single file
 	nBodySystem.outputNBodyData(outputfile, timeyr, input.orbitCentre);
-	// 2D Flux data goes to separate files for each World in the System
 
+	// 2D Flux data goes to separate files for each World in the System
 	nBodySystem.output2DFluxData(snapshotNumber, timeyr);
 
 	}
 
-    //Close the file before returning
+    // Close the N Body file
 
     fclose(outputfile);
-
 
     // Write integrated Data to files
 
     nBodySystem.outputIntegratedFluxData();
-
     nBodySystem.outputInfoFile(snapshotNumber);
-
-    // Write .info file
-    string fileString = input.SystemName+".info";
-    FILE *infoFile = fopen(fileString.c_str(), "w");
-
-    double globalFluxMax= 0.0;
-    int nStars = nBodySystem.countStars();
-
-    	fprintf(infoFile,"%i \n", snapshotNumber);
-    	fprintf(infoFile,"%i \n", nStars);
-
-    for (int s = 0; s < nBodySystem.getBodyCount(); s++)
-	{
-	if (BodyArray[s]->getType() == "Star")
-	    {
-	    fprintf(infoFile, "%s \n", BodyArray[s]->getName().c_str());
-	    fprintf(infoFile, "%+.4E %+.4E %+.4E \n", BodyArray[s]->getRadius(),
-		    BodyArray[s]->getTeff(),
-		    BodyArray[s]->calculatePeakWavelength());
-	    }
-
-	if (BodyArray[s]->getType() == "PlanetSurface")
-	    {
-	    if (BodyArray[s]->getFluxMax() > globalFluxMax)
-		{
-		globalFluxMax = BodyArray[s]->getFluxMax();
-		}
-
-	    }
-	}
-
-    	fprintf(infoFile, "%+.4E \n", globalFluxMax);
-    	fclose(infoFile);
-
-
 
     return 0;
     }

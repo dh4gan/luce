@@ -6,9 +6,6 @@
  */
 
 
-
-using namespace std;
-
 #ifndef STAR_H_
 #define STAR_H_
 

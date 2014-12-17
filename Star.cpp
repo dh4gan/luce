@@ -15,6 +15,15 @@
 
 Star::Star() :
 	Body() {
+
+    type = "Star";
+    nlambda = 1000;
+    I_lambda = vector<double> (nlambda, 0.0);
+    Teff = 5000.0;
+
+    calcLuminosityStefanBoltzmann();
+    calculateSingleHZ();
+
 }
 Star::Star(string &namestring, double &m, double &rad, Vector3D  &pos, Vector3D  &vel) :
 	Body(namestring, m, rad, pos, vel) {
@@ -22,7 +31,9 @@ Star::Star(string &namestring, double &m, double &rad, Vector3D  &pos, Vector3D 
 	nlambda = 1000;
 	I_lambda = vector<double> (nlambda, 0.0);
 	Teff = 5000.0;
+
 	calcLuminosityStefanBoltzmann();
+	calculateSingleHZ();
 
 }
 
@@ -34,6 +45,9 @@ Star::Star(string &namestring, double &m, double &rad,Vector3D  &pos, Vector3D &
 	nlambda = n;
 	I_lambda = vector<double> (nlambda, 0.0);
 
+
+	innerHZ = 0.0;
+
 	calcLuminosityStefanBoltzmann();
 
 }
@@ -41,12 +55,13 @@ Star::Star(string &namestring, double &m, double &rad,Vector3D  &pos, Vector3D &
 Star::Star(string &namestring, double &m, double &rad,Vector3D  &pos, Vector3D &vel, double &lum, double &T, int &n) :
 	Body(namestring, m, rad, pos, vel) {
 
-    type = "Star";
+	type = "Star";
 	Teff = T;
 	nlambda = n;
 	I_lambda = vector<double> (nlambda, 0.0);
 
 	luminosity = lum;
+	calculateSingleHZ();
 
 }
 
@@ -63,6 +78,7 @@ Star::Star(string &namestring, double &m, double &rad,
     I_lambda = vector<double> (nlambda, 0.0);
 
     calcLuminosityStefanBoltzmann();
+    calculateSingleHZ();
 
 
 }
@@ -80,6 +96,8 @@ Star::Star(string namestring, double m, double rad, double semimaj,
     I_lambda = vector<double>(nlambda, 0.0);
 
     luminosity = lum;
+
+    calculateSingleHZ();
 
     }
 

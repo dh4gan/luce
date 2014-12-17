@@ -71,6 +71,9 @@ public:
 	vector<double> rotationPeriod;
 	vector<double> obliquity;
 
+	double longTrack;
+	double latTrack;
+
 	vector<int> orbitCentre;
 
 	Vector3D getBodyPosition(int index);
