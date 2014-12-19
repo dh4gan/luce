@@ -1045,7 +1045,7 @@ void System::outputNBodyData(FILE *outputfile, double &time, vector<int> orbitCe
 
     }
 
-void System::output2DFluxData(int &snapshotNumber, double &tSnap)
+void System::output2DFluxData(int &snapshotNumber, double &tSnap, string prefixString)
     {
 
     /*
@@ -1060,7 +1060,7 @@ void System::output2DFluxData(int &snapshotNumber, double &tSnap)
 	    {
 
 		if(fullOutput){
-	    bodies[b]->writeFluxFile(snapshotNumber, tSnap);
+	    bodies[b]->writeFluxFile(snapshotNumber, nTime, tSnap, prefixString);
 		}
 
 		bodies[b]->writeToLocationFiles(tSnap, bodies);
@@ -1089,7 +1089,7 @@ void System::outputIntegratedFluxData() {
 
 }
 
-void System::outputInfoFile(int nTime)
+void System::outputInfoFile()
     {
 
     /*

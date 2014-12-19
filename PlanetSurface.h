@@ -65,7 +65,7 @@ public:
 	void calcFlux(int &istar, Body* &star, double &eclipseFraction, double &time, double &dt);
 	void calcIntegratedQuantities(double &dt);
 
-	void writeFluxFile(int &snapshotNumber, double &time);
+	void writeFluxFile(int &snapshotNumber, int &nTime, double &time,string prefixString);
 	void writeSkyFile(FILE* outputSky, int &istar, double &time);
 	void writeToLocationFiles(double &time, vector<Body*> bodies);
 

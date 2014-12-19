@@ -31,7 +31,7 @@ int main(int argc, char* argv[])
     double pi = 3.141592654;
     double twopi = 2.0*pi;
 
-    int i, fileType;
+    int i, fileType, nTime;
     int snapshotNumber=0;
 
     double tStop;
@@ -77,6 +77,8 @@ int main(int argc, char* argv[])
 
     tMax = input.maximumTime;
     tSnap = input.snapshotTime;
+
+    nTime = int(tMax/tSnap)+1;
 
     if(input.restart)
 	{
@@ -197,6 +199,7 @@ int main(int argc, char* argv[])
     // Calculate its initial properties
     nBodySystem.calcInitialProperties();
     nBodySystem.setHostBodies(input.orbitCentre);
+    nBodySystem.setNTime(nTime);
 
     // Switch Planetary Illumination on/off
     nBodySystem.setIllumination(input.illumination);
@@ -216,6 +219,11 @@ int main(int argc, char* argv[])
 
     nBodySystem.initialise2DFluxOutput(input.SystemName);
     nBodySystem.setFluxOutput(input.fullOutput);
+
+    if(input.fullOutput)
+    {
+    	printf("Run will produce full output \n");
+    }
 
     // Now loop over snap shots, outputting the system data each time
 
@@ -273,7 +281,7 @@ int main(int argc, char* argv[])
 	nBodySystem.outputNBodyData(outputfile, timeyr, input.orbitCentre);
 
 	// 2D Flux data goes to separate files for each World in the System
-	nBodySystem.output2DFluxData(snapshotNumber, timeyr);
+	nBodySystem.output2DFluxData(snapshotNumber, timeyr, input.SystemName);
 
 	}
 
@@ -284,7 +292,7 @@ int main(int argc, char* argv[])
     // Write integrated Data to files
 
     nBodySystem.outputIntegratedFluxData();
-    nBodySystem.outputInfoFile(snapshotNumber);
+    nBodySystem.outputInfoFile();
 
     return 0;
     }

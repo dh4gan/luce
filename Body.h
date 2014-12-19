@@ -179,7 +179,8 @@ public:
 	virtual void calcFlux(int &istar, Body* &star, double &eclipseFraction, double &time, double &dt){};
 	virtual void calcIntegratedQuantities(double &dt){};
 
-	virtual void writeFluxFile(int &snapshotNumber, double &time){};
+
+	virtual void writeFluxFile(int &snapshotNumber, int &nTime, double &time, string prefixString){};
 	virtual void writeSkyFile(FILE* outputSky, int &istar, double &time){};
 	virtual void writeToLocationFiles(double &time, vector<Body*> bodies){};
 

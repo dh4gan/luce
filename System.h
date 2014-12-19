@@ -23,6 +23,7 @@ public:
 
 	string getName() {return name;}
 	int getBodyCount(){ return bodyCount;}
+	int getNTime(){return nTime;}
 	double getTotalMass() { return totalMass;}
 	double getTimestep() { return timeStep;}
 	double getTotalEnergy() { return totalEnergy; }
@@ -44,6 +45,7 @@ public:
 	void setBodyCount(int count){ bodyCount=count;}
 	void setTotalMass(double mtot) {totalMass = mtot;}
 	void setTimestep(double dt) {timeStep = dt;}
+	void setNTime(int t){nTime = t;}
 
 	void setBodies(vector<Body*> bod){bodies=bod;}
 	void setHostBodies(vector<int> orbitCentre);
@@ -94,9 +96,9 @@ public:
 
 	void initialise2DFluxOutput(string prefixString);
 	void outputNBodyData(FILE* outputfile, double &time, vector<int>orbitCentre);
-	void output2DFluxData(int &snapshotNumber, double &tSnap);
+	void output2DFluxData(int &snapshotNumber, double &tSnap, string prefixString);
 	void outputIntegratedFluxData();
-	void outputInfoFile(int nTime);
+	void outputInfoFile();
 
 protected:
 
@@ -106,6 +108,7 @@ protected:
 	vector<Body*> bodies;
 
 	int bodyCount;
+	int nTime;
 
 	double totalMass;
 	double initialEnergy;

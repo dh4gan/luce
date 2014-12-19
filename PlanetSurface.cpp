@@ -143,13 +143,14 @@ void PlanetSurface::initialiseOutputVariables(string prefixString, vector<Body*>
 
 
 	string fileString;
+	int nBodies = int(bodies.size());
 
-	for (int istar=0; istar<nStars; istar++){
+	for (int istar=0; istar<nBodies; istar++){
 
 		if(bodies[istar]->getType()=="Star"){
 
 		// Location Files
-		fileString= prefixString+"_"+bodies[istar]->getName()+".location";
+		fileString= prefixString+"_"+getName()+"_"+bodies[istar]->getName()+".location";
 		locationFile[istar]=fopen(fileString.c_str(),"w");
 		}
 	}
@@ -244,7 +245,7 @@ void PlanetSurface::calcLongitudeOfNoon(Body* &star, int &istar) {
 
 }
 
-void PlanetSurface::writeFluxFile(int &snapshotNumber, double &time)
+void PlanetSurface::writeFluxFile(int &snapshotNumber, int &nTime, double &time, string prefixString)
 
 {
 	/**
@@ -256,7 +257,15 @@ void PlanetSurface::writeFluxFile(int &snapshotNumber, double &time)
 	convert << snapshotNumber;
 
 	string numString = convert.str();
-	string snapshotFileName = getName()+"."+numString;
+
+	int nzeros =int(log10(nTime) + 1);
+
+	while (int(numString.length()) < nzeros) {
+		numString = "0" + numString;
+	}
+
+
+	string snapshotFileName = prefixString+"_"+getName()+"_"+numString+".flux";
 
 	fluxFile = fopen(snapshotFileName.c_str(), "w");
 
@@ -300,10 +309,10 @@ void PlanetSurface::writeToLocationFiles(double &time, vector<Body*> bodies) {
 	if (bodies[istar]->getType() == "Star")
 	    {
 
-	    Vector3D pos = bodies[istar]->getPosition();
+	      Vector3D starpos = bodies[istar]->getPosition().subtractVector(getPosition());
 	    fprintf(locationFile[istar],
 		    "%+.4E  %+.4E  %+.4E %+.4E  %+.4E  %+.4E  %+.4E  %+.4E  %+.4E  %+.4E \n",
-		    time, pos.elements[0], pos.elements[1], pos.elements[2],
+		    time, starpos.elements[0], starpos.elements[1], starpos.elements[2],
 		    longitude[iLongPick], latitude[iLatPick],
 		    flux[istar][iLongPick][iLatPick],
 		    altitude[istar][iLongPick][iLatPick],
