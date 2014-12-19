@@ -292,7 +292,7 @@ int main(int argc, char* argv[])
     // Write integrated Data to files
 
     nBodySystem.outputIntegratedFluxData();
-    nBodySystem.outputInfoFile();
+    nBodySystem.outputInfoFile(snapshotNumber);
 
     return 0;
     }

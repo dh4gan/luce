@@ -1089,7 +1089,7 @@ void System::outputIntegratedFluxData() {
 
 }
 
-void System::outputInfoFile()
+void System::outputInfoFile(int nSnaps)
     {
 
     /*
@@ -1104,7 +1104,7 @@ void System::outputInfoFile()
        double globalFluxMax= 0.0;
        int nStars = countStars();
 
-       	fprintf(infoFile,"%i \n", nTime);
+       	fprintf(infoFile,"%i \n", nSnaps);
        	fprintf(infoFile,"%i \n", nStars);
 
        for (int s = 0; s < bodyCount; s++)
