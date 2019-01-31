@@ -1,11 +1,11 @@
 ParType Orbital
-NBodyOutput trial.txt
-SnapshotTime	1.0e-1
-MaximumTime	100.0
+NBodyOutput test.nbody
+SnapshotTime	1.0e-3
+MaximumTime	1.0
 NLambda		100
 NLatitude	100
 NLongitude 	100
-SystemName EarthSun
+SystemName test
 Number_Bodies 2
 --
 BodyName Sun
