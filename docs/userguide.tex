@@ -1,0 +1,168 @@
+\documentclass[usenatbib,11pt]{article}
+\pagestyle{myheadings}
+\markright{Luce - 2D surface flux patterns on bodies inside an N Body integrator}
+\usepackage{graphicx,natbib,a4wide}
+\usepackage[top= 2.25cm, bottom=1.0cm, left=1.55cm, right=1.55cm]{geometry}
+
+\usepackage[T1]{fontenc}
+\usepackage[scaled]{helvet}
+\renewcommand*\familydefault{\sfdefault} %% Only if the base font of the document is to be sans serif
+
+\newcommand{\mnras}{MNRAS}
+\newcommand{\apj}{ApJ}
+\newcommand{\nat}{Nature}
+\newcommand{\apjl}{ApJL}
+\newcommand{\apjs}{ApJS}
+\newcommand{\physrep}{Phys.~Rep.}
+\newcommand{\aap}{A\&A}
+\newcommand{\aaps}{A\&AS}
+\newcommand{\araa}{ARA\&A}
+\newcommand{\aj}{AJ}
+\newcommand{\prd}{PhRvD}
+\newcommand{\repprog}{Rep.~Prog.~Phys}
+
+
+\begin{document}
+
+\title{Luce - 2D surface flux patterns on bodies inside an N Body integrator\\Version 0.1}
+\author{Duncan Forgan (\texttt{github/dh4gan})}
+\maketitle
+
+\noindent NOTE: Luce is developed for use on Unix systems (e.g. Linux or Mac).  I can't guarantee support for Windows, and your mileage may vary.
+
+\tableofcontents
+\newpage
+
+
+
+\section{Getting Luce}
+
+\noindent Luce is hosted on github at \texttt{https://github.com/dh4gan/Luce}.  You can either directly download from the link or use \texttt{git}.  Open a terminal and at the command line, type:\\
+
+\texttt{> git clone https://github.com/dh4gan/Luce.git}
+
+\section{Compiling Luce}
+
+\noindent   The source code is in the \texttt{/src} folder, which contains a \texttt{Makefile}.  You will require g++ (and gmake or cmake) to compile the code. With the appropriate software installed, type 'make' to compile the executable \texttt{./luce}.
+
+
+\section{Running Luce}
+
+\noindent With the code compiled, type\\
+
+\texttt{> ./Luce <parameterfile>}
+
+\noindent or\\
+
+\texttt{>./Luce}
+
+Which will then prompt you to enter a parameter file name.
+
+\section{Code Design}
+
+This code is object-oriented, with three base classes:
+
+\begin{itemize}
+
+\item The base class \texttt{Body} encapsulates the properties of each body in the simulation.  The base class stores positions, velocities, masses and radii, and including methods for calculating gravitational forces and computing orbits.  The derived \texttt{Star}, \texttt{Planet} and \texttt{World} classes contain methods for calculating luminosity and climate/spin evolution.
+
+\item The \texttt{System} class takes a vector of \texttt{Body} pointers, and controls method calls for the evolution of the collection of \texttt{Body} objects under gravity, and \texttt{World} objects' climate evolution.
+
+\item The \texttt{parFile} class handles input data to the simulation, which is read from a parameter file.
+
+\end{itemize}
+
+When the code is run, any \texttt{World} object in the simulation will have its climate computed under the assumption that it is Earthlike, with each World receiving its own set of output files.
+
+\section{Input Options}
+
+\noindent Luce requires a single input parameter file which contains the essential information required to run the simulation.  The parameter file system is quite flexible - the ordering of the options in the file is relatively unimportant, provided that all the global options are at the top of the file before individual body data.
+
+Each variable is read in by checking the first string on each line.  Please ensure that the keywords as given below are the first strings on each line, with no whitespace at the beginning, otherwise they will be ignored.  
+
+The read in system is robust to '--' and '\#' symbols, so do feel free to use these as spacers between data points, or indeed to ``comment out'' a row and replace it with another input. 
+
+\subsection{Global Options}
+
+\begin{itemize}
+\item{\texttt{ParType `Positional/Orbital'}} The format of data for entry (either Cartesian co-ordinates for position and velocity or orbital elements)
+\item{\texttt{NBodyOutput (string)}} The filename for the N Body data file
+\item{\texttt{SnapshotTime (double)}} The time interval between data dumps and snapshots
+\item{\texttt{NGridPoints: (integer)}} The number of grid points used by the latitudinal energy balance model
+\item{\texttt{MaximumTime: (double)}} The maximum runtime of the simulation
+\item{\texttt{SystemName: (string)}} A name for the simulation
+\item{\texttt{Number Bodies: (integer)}} The number of bodies in the system
+\item{\texttt{Restart: `T/F'}} is the simulation a restart? (Default: False)
+\item{\texttt{FullOutput `T/F'}} True: Output full snapshots as well as log files with surface averaged values for each body, False: log files only (Default: False)
+\item{\texttt{TidalHeating `T/F'}} Compute the tidal heating of the Worlds by the object they orbit?  (Default:False)
+\item{\texttt{PlanetaryIllumination `T/F'}} Are `Planet' objects also luminosity sources? (Default: False)
+\item{\texttt{ObliquityEvolution `T/F'}} Allow the spin parameters of `World' objects to change? (Default: False)
+\item{\texttt{CarbonateSilicateCycle `T/F'}} Model the effects of the carbonate-silicate cycle? (Default: False)
+\end{itemize}
+
+\subsection{Body Options (must be specified for each body)}
+
+\begin{itemize}
+\item \texttt{BodyName: (string)} Name for the \texttt{Body} object
+\item \texttt{BodyType: `Star/Planet/World'}
+\item{\texttt{Mass: (double)}} Body mass in solar masses
+\item{\texttt{Radius: (double)}} Body radius in solar radii
+\end{itemize}
+
+For Positional Files:
+
+\begin{itemize}
+
+\item{\texttt{Position: (double) (double) (double)}} Cartesian position vector (astronomical units, AU)
+\item{\texttt{Velocity: (double) (double) (double)}} Cartesian velocity vector (2$\pi$ *AU/year)
+\end{itemize}
+
+
+For Orbital Files:
+
+\begin{itemize}
+\item{\texttt{SemiMajorAxis: (double)}} Semimajor Axis (AU)
+\item{\texttt{Eccentricity: (double)}} Eccentricity
+\item{\texttt{Inclination: (double)}} Inclination (radians)
+\item{\texttt{LongAscend: (double)}} Longitude of the Ascending Node (radians)
+\item{\texttt{Periapsis: (double)}} Argument of Periapsis (radians)
+\item{\texttt{MeanAnomaly: (double)}} Mean Anomaly (radians)
+\item{\texttt{OrbitCentre: (integer)}} Where is the initial orbit focus? -1 = (0,0,0), 0=system centre of mass, 1,2,3... = Body 1,2,3 )
+\end{itemize}
+
+
+\subsubsection{Planet Options}
+\begin{itemize}
+\item \texttt{Albedo} - Albedo of the Planet (for Planetary Illumination calculations)
+\end{itemize}
+
+\subsubsection{Star Options}
+
+\begin{itemize}
+\item{\texttt{Luminosity (double)}} Bolometric Luminosity (solar luminosity)
+\item{\texttt{SpectralType ('F/G/K/M')}} Stellar spectral type (for Carbonate Silicate Cycle)
+\end{itemize}
+
+\subsubsection{PlanetSurface Options}
+
+\begin{itemize}
+\item{\texttt{RotationPeriod (double)}} World rotation period in days
+\item{\texttt{Obliquity (double)}} initial obliquity in degrees
+\item{\texttt{WinterSolstice (double)}} orbital longitude of the winter solstice (degrees)
+\end{itemize}
+
+\section{Outputs}
+
+
+\begin{itemize}
+\item{\texttt{<SystemName>_<PlanetSurfaceName><StarName>.location}} - records the altitude and hour angle of a given star in the sky for a PlanetSurface Object (given a position on its surface) 
+\item{\texttt{<PlanetSurfaceName>.integrated}} - the total flux integrated over the entire simulation for a given PlanetSurface Object.
+\end{itemize}
+
+
+An N Body file is also produced (name specified by the user), which is more suited to plotting the entire simulation's evolution (Star and Planet objects included).
+
+Python 2.7 scripts for plotting these datafiles can be found in `plot/`
+
+
+\end{document}
