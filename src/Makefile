@@ -1,8 +1,8 @@
 #####################################################
 ###                                               ###
-### Makefile for nbody_2Dflux                          ###
+### Makefile for luce                             ###
 ###                                               ###
-### Duncan H. Forgan 26/8/2014          	  ###
+### Duncan H. Forgan 01/02/2019          	  ###
 ###       				          ###
 ###                                               ###
 #####################################################
@@ -29,13 +29,13 @@ SOURCESA = main.cpp Vector3D.cpp Body.cpp Star.cpp Planet.cpp PlanetSurface.cpp 
 OBJECTSA    = $(SOURCESA:.cpp=.o)
 
 # Create executable files:
-build: nbody_2Dflux
+build: luce
 
-nbody_2Dflux:  $(OBJECTSA)
+luce:  $(OBJECTSA)
 	$(CC) $(CFLAGS) -o $@ $(OBJECTSA)
 
 # Clean statements:
 clean: 
-	\rm *.o *.d nbody_2Dflux
+	\rm *.o luce
 
 # End Makefile
