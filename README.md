@@ -15,13 +15,11 @@ Features:
 --------
 * Simple orbital setup routines or direct cartesian vector input positions for bodies
 * 2D flux and darkness time recorded on any number of bodies
+* Planetary Illumination can also be included
 * 4th Order Hermite N Body integration (shared variable timestep)
-* Library of Python 2.7 plotting scripts 
+* Library of Python 2.7 plotting scripts (requiring quite some modifications)
 * Library of example parameter setups to run
 
-Future Features/Wishlist:
--
-* Planetary Illumination
 
 Requirements:
 -------------
