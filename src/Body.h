@@ -16,17 +16,21 @@
 #include "math.h"
 #include "Vector3D.h"
 #include "Constants.h"
-
+#include "parFile.h"
 class Body {
 public:
 	Body();
-	Body(string namestring, double m, double rad, Vector3D pos, Vector3D vel);
+	Body(string &namestring, double &m, double &rad, Vector3D &pos, Vector3D &vel);
 
-	Body(string namestring, double m, double rad, double semimaj, double ecc, double inc,
+	Body(string &namestring, double &m, double &rad, double semimaj, double ecc, double inc,
 		double longascend, double argper, double meananom, double G, double totalMass);
 
+    Body(parFile &input, int &bodyIndex, double &G);
 	virtual ~Body();
 
+    
+    Body* nBodyClone();
+    
 	/* Accessor methods */
 
 	string getName() { return name; }
@@ -116,6 +120,12 @@ public:
 	void calcSnapCrackle(double G, vector<Body*> bodyarray, double softening_length); // Calculates next two derivatives of acceleration
 
 
+    void setHostMass(double m){hostMass = m;}
+    double getHostMass(){return hostMass;}
+    
+    void setHostBody(Body* bod){hostBody = bod;}
+    Body* getHostBody(){return hostBody;}
+    
 	double safeAcos(double x) {
 		if (x < -1.0)
 			x = -1.0;
@@ -186,8 +196,6 @@ public:
 
 	virtual void writeIntegratedFile(){};
 
-	virtual void setHostBody(Body* bod){};
-
 	// Variables that are part of the Body Class and its derivations //
 protected:
 
@@ -227,6 +235,9 @@ protected:
 	double argumentPeriapsis;
 	double longitudePeriapsis;
 	double longitudeAscendingNode;
+    
+    Body* hostBody;
+    double hostMass;
 
 };
 

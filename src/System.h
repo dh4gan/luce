@@ -71,11 +71,18 @@ public:
 
 	void calcPlanetaryEquilibriumTemperatures();
 	void calcCOMFrame(vector<int> participants);
+    void calcHostCOMFrame(Body* bod, Vector3D &hostCOM, Vector3D &hostVelCOM);
+
+    
+    
 	void transformToCOMFrame(vector<int> participants);
 	void calcCOMFrame();
 	void transformToCOMFrame();
 	void transformToBodyFrame(int bodyIndex);
 
+    void transformToArbitraryFrame(Vector3D framePosition,Vector3D frameVelocity, vector<int> participants);
+    void transformToArbitraryFrame(Vector3D framePosition,Vector3D frameVelocity);
+    
 	void setupOrbits(vector<int> bodyCentre);
 
 

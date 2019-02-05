@@ -24,6 +24,9 @@ public:
 			double ecc, double inc, double trueAnom, double longascend,
 			double argper, double G, double totalMass, int &nstar, int &nlat, int &nlong, double &spin,
 			double &obliq);
+    
+    PlanetSurface(parFile &input, int &bodyIndex, double &G);
+    
 	virtual ~PlanetSurface();
 
 	/* Accessors */

@@ -2,7 +2,13 @@
  * parFile.h
  *
  *  Created on: Sep 23, 2013
- *      Author: davidharvey
+ *  Majorly revised: Sep 19, 2018
+ *
+ *      Author: dh4gan
+ *
+ * This object reads in the input parameters for the simulation
+ * Parameters stored in <map> objects
+ *
  */
 
 #ifndef PARFILE_H_
@@ -11,85 +17,128 @@
 #include <iostream>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
-#include "System.h"
+#include <string>
+#include <map>
+#include "Vector3D.h"
 
 #include <fstream>
 #include <sstream>
 using namespace std;
 
+const string stringType = "string";
+const string intType = "int";
+const string doubleType = "double";
+const string vectorIntType = "vectorInt";
+const string vectorDoubleType = "vectorDouble";
+const string vectorStringType = "vectorString";
+
+
+// All single string variables to read in
+const string stringV[] = {"ParType", "NBodyOutput", "SystemName","Restart","PlanetaryIllumination","FullOutput"};
+
+// Of these, which are boolean?
+ const string boolV[] = {"Restart","PlanetaryIllumination","FullOutput"};
+
+// Scalar ints to be read in
+const string intV[] = {"NGridPoints","Number_Bodies", "NLambda", "NLongitude"};
+
+// Scalar doubles
+const string doubleV[] = {"TotalMass","SnapshotTime","MaximumTime"};
+
+// Vector (string) variables
+const string vectorStringV[] = {"BodyName", "BodyType"};
+
+// Vector (int) variables
+const string vectorIntV[] = {"OrbitCentre"};
+
+// Vector (double) variables
+const string vectorDoubleV[] = {"Mass", "Radius", "Position", "XPosition", "YPosition", "ZPosition", "Velocity", "XVelocity", "YVelocity", "ZVelocity", "SemiMajorAxis", "Eccentricity", "Inclination", "LongAscend", "Periapsis", "MeanAnomaly", "RotationPeriod", "Obliquity", "WinterSolstice", "Albedo","Luminosity"};
+
+
+const string degreeV[] = {"Obliquity","WinterSolstice"}; // Variables with units of degrees - these are eventually converted to radians
+
+// Decant these into STL vectors for easier passing between functions
+const vector<string> stringVar(stringV, stringV+sizeof(stringV)/sizeof(*stringV));
+const vector<string> boolVar(boolV, boolV+sizeof(boolV)/sizeof(*boolV));
+const vector<string> intVar(intV, intV+sizeof(intV)/sizeof(*intV));
+const vector<string> doubleVar(doubleV, doubleV+sizeof(doubleV)/sizeof(*doubleV));
+
+const vector<string> vectorStringVar(vectorStringV, vectorStringV+sizeof(vectorStringV)/sizeof(*vectorStringV));
+const vector<string> vectorIntVar(vectorIntV, vectorIntV+sizeof(vectorIntV)/sizeof(*vectorIntV));
+const vector<string> vectorDoubleVar(vectorDoubleV, vectorDoubleV+sizeof(vectorDoubleV)/sizeof(*vectorDoubleV));
+
+const vector<string> degreeVar(degreeV, degreeV+sizeof(degreeV)/sizeof(*degreeV));
+
 class parFile {
 public:
 	parFile( );
 	parFile(string name);
-
-	string NBodyFile;
+    
+    virtual ~parFile();
+    
+    void readFile();
+    void readFile(string &filename);
+    
+    void readVariable(string &par, istringstream &iss, int &bodyIndex);
+    void readIntVariable(string &par, istringstream &iss);
+    void readStringVariable(string &par, istringstream &iss);
+    void readDoubleVariable(string &par, istringstream &iss);
+    
+    void readVectorIntVariable(string &par, istringstream &iss, int &bodyIndex);
+    void readVectorDoubleVariable(string &par, istringstream &iss, int &bodyIndex);
+    void readVectorStringVariable(string &par, istringstream &iss, int &bodyIndex);
+    void read3DVector(string &par, istringstream &iss, int &bodyIndex);
+    
+    string getStringVariable(const string &par){return stringVariables[par];}
+    string getStringVariable(const string &par, int &bodyIndex){return vectorStringVariables[par][bodyIndex];}
+    
+    int getIntVariable(const string &par){return intVariables[par];}
+    int getIntVariable(const string &par, int &bodyIndex){return vectorIntVariables[par][bodyIndex];}
+    double getDoubleVariable(const string &par){return doubleVariables[par];}
+    double getDoubleVariable(const string &par, int &bodyIndex){return vectorDoubleVariables[par][bodyIndex];}
+    
+    bool getBoolVariable(const string &par){return boolVariables[par];}
+    
+    void setVariableType(const vector<string> &variables, const string &type);
+    void setVariableLocations();
+    
+    Vector3D getBodyPosition(int index);
+    Vector3D getBodyVelocity(int index);
+    
+    void initialiseVectors(int nBodies);
+    void convertToRadians(int nBodies);
+    
+    void initialiseBoolean(const string &par);
+    void initialiseAllBooleans();
+    
+    void setupRestartPositions();
+    
+    void checkParameters();
+    void displayParameters();
+    void reportError(const string &par, double &value);
+    void reportError(const string &par, int &value);
+    void reportError(const string &par, string &value);
+    
+private:
 	string parFileName;
-	string SystemName;
-	string fileType;
-
-	// TODO - need to put prepicked location data in as parameters too
-	bool restart;
-	bool illumination;
-	bool tidal;
-	bool fullOutput;
-
-	int number_bodies;
-	int snapshotNumber;
-	int nLongitude, nLatitude, nLambda;
-	double snapshotTime;
-	double maximumTime;
-	double systemTime;
-	double totalMass;
-
-	vector<string> parameters;
-	vector<string> BodyNames;
-	vector<string> BodyTypes;
-
-	vector<double> Mass;
-	vector<double> Radius;
-
-	vector<double> x_position;
-	vector<double> y_position;
-	vector<double> z_position;
-
-	vector<double> x_velocity;
-	vector<double> y_velocity;
-	vector<double> z_velocity;
-
-	vector<double> semiMajorAxis;
-	vector<double> eccentricity;
-	vector<double> inclination;
-	vector<double> longAscend;
-	vector<double> Periapsis;
-	vector<double> meanAnomaly;
-
-	vector<double> luminosity;
-	vector<double> effectiveTemperature;
-	vector<double> albedo;
-
-	vector<double> rotationPeriod;
-	vector<double> obliquity;
-
-	double longTrack;
-	double latTrack;
-
-	vector<int> orbitCentre;
-
-	Vector3D getBodyPosition(int index);
-	Vector3D getBodyVelocity(int index);
-
-	int readParFile();
-	int readParFile(string fileName);
-
-	void readPosFile();
-	void readOrbFile();
-	int parType();
-	int parType(string fileName);
-
-	void setupRestartPositions();
-
-
+	
+    // Map objects to store variable data as it is read
+    
+    std::map < string, string > stringVariables;
+    std::map < string, double > doubleVariables;
+    std::map < string, int > intVariables;
+    std::map < string, bool > boolVariables;
+    
+    
+    std::map < string, vector<int> > vectorIntVariables;
+    std::map < string, vector<double> > vectorDoubleVariables;
+    std::map < string, vector<string> > vectorStringVariables;
+    
+    // This map stores which map each variable lives in
+    std::map< string, string > variableLocations;
+    
+	
+    
 };
 
 

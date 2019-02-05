@@ -19,7 +19,7 @@ PlanetSurface::PlanetSurface() :
 	nStars = 1;
 	nLatitude = 100;
 	nLongitude = 100;
-	Pspin = 2.7e-3;
+	Pspin = 1.0/year;
 	obliquity = 0.5123;
 	fluxmax = 0.0;
 
@@ -68,6 +68,26 @@ PlanetSurface::PlanetSurface(string &namestring, double &m,
 	// By default, prepicked surface location is on the equator/prime meridian
 	findSurfaceLocation();
 
+}
+
+
+PlanetSurface::PlanetSurface(parFile &input, int &bodyIndex, double &G):
+Body(input,bodyIndex,G)
+{
+    type = "PlanetSurface";
+    //nStars = nstar; TODO - how to do star count?
+    nLatitude = input.getIntVariable("NLatitude");
+    nLongitude = input.getIntVariable("NLongitude");
+    Pspin = input.getDoubleVariable("Period")/year;
+    obliquity = input.getDoubleVariable("Obliquity");
+    fluxmax = 0.0;
+    
+    initialiseArrays();
+    
+    // By default, prepicked surface location is on the equator/prime meridian
+    findSurfaceLocation();
+    
+    
 }
 
 PlanetSurface::~PlanetSurface() {
@@ -184,7 +204,6 @@ void PlanetSurface::findSurfaceLocation(double &longitude, double &latitude) {
 
 	int j;
 	double longtry, lattry, delta_long, delta_lat;
-	double pi = 3.14159265285;
 	double dlat = pi / float(nLatitude);
 	double dlong = 2.0 * pi / float(nLongitude);
 

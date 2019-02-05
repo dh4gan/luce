@@ -5,9 +5,7 @@
  *      Author: dh4gan
  *
  *	Reads in parameter files and runs N Body code
- *	where some objects have climate modelling done in tandem
- *	via LEBM modelling
- * // TODO - change description text
+ *	where some objects have surface flux patterns computed in tandem
  */
 
 #include <iostream>
@@ -20,16 +18,18 @@
 #include "PlanetSurface.h"
 #include "parFile.h"
 
+#include <chrono>
+#include <time.h>
 #include <fstream>
 #include <sstream>
+
 using namespace std;
 
 int main(int argc, char* argv[])
     {
 
-    double G = 1;
-    double pi = 3.141592654;
-    double twopi = 2.0*pi;
+    double G = Gmau;
+    double unit2sec = year/twopi;
 
     int i, fileType, nTime;
     int snapshotNumber=0;
@@ -49,178 +49,134 @@ int main(int argc, char* argv[])
 
     parFile input;
     FILE * outputfile;
+        
+        
+        printf("  \n");
+        printf("%s",screenBar.c_str());
+        printf("\tLuce - 2D surface flux patterns on bodies inside an N Body integrator\n");
+        printf("\t\t\tVersion: %s\n", VERSION);
+        printf("\t\t\tCompiled: %s\n", __DATE__);
+        printf("\t\t\tgit commit: %s \n", GIT_HASH);
+        printf("%s",screenBar.c_str());
+        printf("  \n");
+        
+        // Record start time
+        std::chrono::high_resolution_clock::time_point start = std::chrono::high_resolution_clock::now();
+        
 
-    printf("  \n");
-    printf("*********************************************** \n");
-    printf("    NBODY 2D Flux Code \n ");
-    printf("    Date Created : 4th December 2014 \n");
-    printf("*********************************************** \n");
-    printf("  \n");
+        // Read in parameters file
+        
+        if (argc == 2)
+        {
+            string fileString = string(argv[1]);
+            
+            printf("\tReading file %s\n", fileString.c_str());
+            input.readFile(fileString);
+        }
+        else
+        {
+            
+            input.readFile();
+            
+        }
+        
+        // Check and display input parameters
+        input.checkParameters();  //TODO - rewrite parFile::checkParameters and displayParameters
+        input.displayParameters();
 
-    // Read in parameters file
-
-    if (argc == 2)
-	{
-	string fileString = string(argv[1]);
-	fileType = input.readParFile(fileString);
-	}
-    else
-	{
-	fileType = input.readParFile();
-	if (fileType > 1)
-	    {
-	    return -1;
-	    }
-	}
-
-    // Record parameter data
-
-    tMax = input.maximumTime;
-    tSnap = input.snapshotTime;
+        // Retrieve parameter data from parFile object
+        
+        tMax = input.getDoubleVariable("MaximumTime");
+        tSnap = input.getDoubleVariable("SnapshotTime");
+        
+        bool restart = input.getBoolVariable("Restart");
+        bool fullOutput = input.getBoolVariable("fullOutput");
+        string systemName = input.getStringVariable("SystemName");
+        
 
     nTime = int(tMax/tSnap)+1;
 
-    if(input.restart)
+    if(restart)
 	{
 		cout << "Restart - Using vector data from nbody output" << endl;
 	}
-
-    //First loop through each of the bodies in the system and set them up
-    //adding them to the BodyArray
-    for (i = 0; i < input.number_bodies; i++)
-	{
-
-	if (fileType == 0 or input.restart)
-	    {
-
-	    cout << "setting up body from vectors" << endl;
-
-	    body_i_position = input.getBodyPosition(i);
-	    body_i_velocity = input.getBodyVelocity(i);
-
-	    // If the Body is a Star, add a Star Object
-
-	    if (input.BodyTypes[i] == "Star")
-		{
-		BodyArray.push_back(
-			new Star(input.BodyNames[i],input.Mass[i], input.Radius[i], body_i_position,
-				body_i_velocity, input.luminosity[i],input.effectiveTemperature[i], input.nLambda));
-		}
-
-	    // If the Body is a Planet, add a Planet Object
-	    if (input.BodyTypes[i] == "Planet")
-		{
-		BodyArray.push_back(
-			new Planet(input.BodyNames[i], input.Mass[i], input.Radius[i], body_i_position,
-				body_i_velocity, input.albedo[i]));
-		}
-
-	    // If the Body is a PlanetSurface, add a PlanetSurface Object and set up surface grids
-
-	    if (input.BodyTypes[i] == "PlanetSurface")
-		{
-		// Code will halt if initial temperature zero
-		// this stops incomplete params files running successfully
-
-		BodyArray.push_back(
-			new PlanetSurface(input.BodyNames[i], input.Mass[i],
-				input.Radius[i], body_i_position,
-				body_i_velocity, input.number_bodies,
-				input.nLatitude, input.nLongitude,
-				input.rotationPeriod[i], input.obliquity[i]));
-
-		}
-
-
-	    }
-	else if (fileType == 1 and input.restart==false)
-	    {
-	   	printf("setting up body with orbital parameters \n");
-
-	    // If the Body is a Star, add a Star Object
-	    if (input.BodyTypes[i] == "Star")
-		{
-
-		BodyArray.push_back(
-			new Star(input.BodyNames[i],
-				input.Mass[i], input.Radius[i],
-				input.semiMajorAxis[i], input.eccentricity[i],
-				input.inclination[i], input.longAscend[i],
-				input.Periapsis[i], input.meanAnomaly[i], G,
-				input.totalMass, input.luminosity[i], input.effectiveTemperature[i], input.nLambda));
-		}
-
-	    // If the Body is a Planet, add a Planet Object
-	    if (input.BodyTypes[i] == "Planet")
-		{
-		BodyArray.push_back(
-			new Planet(input.BodyNames[i],
-				input.Mass[i], input.Radius[i],
-				input.semiMajorAxis[i], input.eccentricity[i],
-				input.inclination[i], input.longAscend[i],
-				input.Periapsis[i], input.meanAnomaly[i], G,
-				input.totalMass, input.albedo[i]));
-
-		}
-
-	    // If the Body is a World, add a World Object and set up LEBM
-	    if (input.BodyTypes[i] == "PlanetSurface")
-		{
+        
+        
+        printf("Creating bodies \n");
+        
+        //First loop through each of the bodies in the system and set them up
+        //adding them to the BodyArray
+        for (i = 0; i < input.getIntVariable("Number_Bodies"); i++)
+        {
+            
+            printf("Creating Body %s \n",input.getStringVariable("BodyName",i).c_str());
+            if (input.getStringVariable("BodyType",i).compare("Star")==0)
+            {
+                BodyArray.push_back(new Star(input, i, G));
+            }
+            else if (input.getStringVariable("BodyType",i) == "Planet")
+            {
+                BodyArray.push_back(new Planet(input, i, G));
+            }
+            else if(input.getStringVariable("BodyType",i) == "PlanetSurface")
+            {
+                BodyArray.push_back(new PlanetSurface(input, i, G));
+                
+              /*     if(input.getBoolVariable("Restart"))
+               *
+               * {
+               *     cout << "Reading Temperature data for World " << BodyArray.back()->getName() << endl;
+               *     snapshotNumber = BodyArray.back()->getRestartParameters();
+                }*/
+                
+            }
+            
+        }
+        
+        
+        printf("Setting up system %s \n", systemName.c_str());
+        
+        nBodySystem = System(systemName, BodyArray);
+        
+        // If the System is created from orbital parameters, set up vectors here
+        vector<int> orbitCentre;
+        
+        for (int i=0; i<input.getIntVariable("Number_Bodies"); i++)
+        
+        {
+            orbitCentre.push_back(input.getIntVariable("OrbitCentre",i));
+            
+        }
+        nBodySystem.setHostBodies(orbitCentre);
+        
+        if(input.getStringVariable("ParType").compare("Orbital")==0 and input.getBoolVariable("Restart")==false)
+        {
+            nBodySystem.setupOrbits(orbitCentre);
+        }
+        
+        // Calculate the system's initial properties
+        nBodySystem.calcInitialProperties();
+        
+        // Switch Planetary Illumination on/off
+        nBodySystem.setIllumination(input.getBoolVariable("PlanetaryIllumination"));
+        
+        // Set up the outputs
+        
+        if (restart and snapshotNumber !=0)
+        {
+            outputfile = fopen(input.getStringVariable("NBodyOutput").c_str(), "a");
+        }
+        else
+        {
+            outputfile = fopen(input.getStringVariable("NBodyOutput").c_str(), "w");
+            fprintf(outputfile, "Number of Bodies, %i \n", input.getIntVariable("Number_Bodies"));
+        }
 
 
-		BodyArray.push_back(
-			new PlanetSurface(input.BodyNames[i], input.Mass[i],
-				input.Radius[i], input.semiMajorAxis[i],
-				input.eccentricity[i], input.inclination[i],
-				input.longAscend[i], input.Periapsis[i],
-				input.meanAnomaly[i], G, input.totalMass,
-				input.number_bodies, input.nLatitude,
-				input.nLongitude, input.rotationPeriod[i],
-				input.obliquity[i]));
-		}
+    nBodySystem.initialise2DFluxOutput(systemName);
+    nBodySystem.setFluxOutput(fullOutput);
 
-	    }
-
-	}
-
-    // Set up System object using BodyArray
-
-    printf("Setting up system %s \n", input.SystemName.c_str());
-
-    nBodySystem = System(input.SystemName, BodyArray);
-
-    // If the System is created from orbital parameters, set up vectors here
-
-    if(fileType ==1 and input.restart==false)
-	{
-	nBodySystem.setupOrbits(input.orbitCentre);
-	}
-
-    // Calculate its initial properties
-    nBodySystem.calcInitialProperties();
-    nBodySystem.setHostBodies(input.orbitCentre);
-    nBodySystem.setNTime(nTime);
-
-    // Switch Planetary Illumination on/off
-    nBodySystem.setIllumination(input.illumination);
-
-    // Set up the outputs
-
-    if (input.restart and snapshotNumber !=0)
-	{
-	outputfile = fopen(input.NBodyFile.c_str(), "a");
-	}
-    else
-	{
-	outputfile = fopen(input.NBodyFile.c_str(), "w");
-	fprintf(outputfile, "Number of Bodies, %i \n", input.number_bodies);
-	}
-
-
-    nBodySystem.initialise2DFluxOutput(input.SystemName);
-    nBodySystem.setFluxOutput(input.fullOutput);
-
-    if(input.fullOutput)
+    if(fullOutput)
     {
     	printf("Run will produce full output \n");
     }
@@ -231,7 +187,7 @@ int main(int argc, char* argv[])
     tMax = tMax * twopi; // Convert maximum time to code units
     tSnap = tSnap*twopi; // Convert snapshot time to code units
 
-    dtmax = 0.1*input.snapshotTime*twopi;
+    dtmax = 0.1*tSnap;
 
     // Timesteps will be calculated in NBody units, and converted back to years for Flux calculation
 
@@ -278,10 +234,10 @@ int main(int argc, char* argv[])
 	timeyr = timeunit/twopi;
 
 	// N Body data goes to a single file
-	nBodySystem.outputNBodyData(outputfile, timeyr, input.orbitCentre);
+	nBodySystem.outputNBodyData(outputfile, timeyr, orbitCentre);
 
 	// 2D Flux data goes to separate files for each World in the System
-	nBodySystem.output2DFluxData(snapshotNumber, timeyr, input.SystemName);
+	nBodySystem.output2DFluxData(snapshotNumber, timeyr, systemName);
 
 	}
 
@@ -293,6 +249,19 @@ int main(int argc, char* argv[])
 
     nBodySystem.outputIntegratedFluxData();
     nBodySystem.outputInfoFile(snapshotNumber);
+        
+    // Simulation has now ended
+    // Write elapsed runtime to the screen
+        
+    std::chrono::high_resolution_clock::time_point finish = std::chrono::high_resolution_clock::now();
+        
+    std::chrono::duration<double> time_span = std::chrono::duration_cast<std::chrono::duration<double> >(finish - start);
+        
+    printf("%s",screenBar.c_str());
+    printf("Run %s complete \n", nBodySystem.getName().c_str());
+    printf("Wall Clock Runtime: %f s \n", time_span.count());
+    printf("%s",screenBar.c_str());
+        
 
     return 0;
     }

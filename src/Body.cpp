@@ -6,17 +6,16 @@
  */
 
 #include "Body.h"
+#include "Constants.h"
 #include <iostream> // Included for debug lines only
 #include <math.h>
-#include "Constants.h"
 
 Body::Body()
     {
-
     name = "Body";
     type = "Body";
     mass = 1.0;
-    radius = 0.8;
+    radius = 1.0;
     collisionBounce = true;
 
     Vector3D zero;
@@ -48,10 +47,13 @@ Body::Body()
 
     timestep = 0.0;
 
+    hostBody = 0;
+    hostMass = mass;
+
     }
 
-Body::Body(string namestring, double m, double rad, Vector3D pos,
-	Vector3D vel)
+Body::Body(string &namestring, double &m, double &rad, Vector3D &pos,
+	Vector3D &vel)
     {
     Vector3D zero;
     name = namestring;
@@ -88,17 +90,19 @@ Body::Body(string namestring, double m, double rad, Vector3D pos,
 
     timestep = 0.0;
 
+    hostBody = 0;
+    hostMass = mass;
+
     }
 
 
-Body::Body(string namestring, double m, double rad, double semimaj, double ecc, double inc, double longascend,
+Body::Body(string &namestring, double &m, double &rad, double semimaj, double ecc, double inc, double longascend,
 				double argper, double meananom, double G, double totalMass)
     {
 
     Vector3D zero;
 
     name = namestring;
-
     type = "Body";
     mass = m;
     radius = rad;
@@ -127,11 +131,112 @@ Body::Body(string namestring, double m, double rad, double semimaj, double ecc, 
     calcTrueAnomaly();
     calcVectorFromOrbit(G, totalMass);
 
+    hostBody = 0;
+    hostMass = mass;
   }
+
+
+Body::Body(parFile &input, int &bodyIndex, double &G)
+{
+    
+    Vector3D zero;
+    
+    if(input.getStringVariable("ParType")=="Orbital")
+    {
+        name = input.getStringVariable("BodyName",bodyIndex);
+        type = "Body";
+        mass = input.getDoubleVariable("Mass",bodyIndex);
+        
+        
+        radius = input.getDoubleVariable("Radius",bodyIndex);
+        collisionBounce = true;
+        
+        semiMajorAxis = input.getDoubleVariable("SemiMajorAxis",bodyIndex);
+        
+        eccentricityVector = zero; // Eccentricity Vector
+        eccentricity = input.getDoubleVariable("Eccentricity",bodyIndex); // Eccentricity = Absolute Magnitude of Eccentricity Vector
+        
+        orbitalAngularMomentum = zero;
+        magOrbitalAngularMomentum = 0.0;
+        
+        inclination = input.getDoubleVariable("Inclination",bodyIndex);
+        
+        position = zero;
+        velocity = zero;
+        meanAnomaly = input.getDoubleVariable("MeanAnomaly",bodyIndex);
+        eccentricAnomaly = 0.0;
+        
+        argumentPeriapsis = input.getDoubleVariable("Periapsis",bodyIndex);
+        
+        longitudeAscendingNode = input.getDoubleVariable("LongAscend",bodyIndex);
+        longitudePeriapsis = argumentPeriapsis + longitudeAscendingNode;
+        
+        calcTrueAnomaly();
+        calcVectorFromOrbit(G, input.getDoubleVariable("TotalMass"));
+        hostBody = 0;
+        hostMass = mass;
+        
+    }
+    
+    else if(input.getStringVariable("ParType")=="Positional")
+        
+    {
+        name = input.getStringVariable("BodyName",bodyIndex);
+        type = "Body";
+        mass = input.getDoubleVariable("Mass",bodyIndex);
+        radius = input.getDoubleVariable("Radius",bodyIndex);
+        collisionBounce = true;
+        
+        position = input.getBodyPosition(bodyIndex);
+        velocity = input.getBodyVelocity(bodyIndex);
+        
+        acceleration = zero;
+        jerk = zero;
+        snap = zero;
+        crackle = zero;
+        
+        semiMajorAxis = 0.0;
+        
+        eccentricityVector = zero;
+        eccentricity = 0.0;
+        
+        orbitalAngularMomentum = zero;
+        magOrbitalAngularMomentum = 0.0;
+        
+        inclination = 0.0;
+        trueAnomaly = 0.0;
+        eccentricAnomaly = 0.0;
+        meanAnomaly = 0.0;
+        period = 0.0;
+        
+        argumentPeriapsis = 0.0;
+        longitudePeriapsis = 0.0;
+        longitudeAscendingNode = 0.0;
+        
+        timestep = 0.0;
+        
+        hostBody = 0;
+        hostMass = mass;
+        
+        
+    }
+    
+}
 
 Body::~Body()
     {
     }
+
+Body* Body::nBodyClone() {
+	/*
+	 * Written 10/07/15 by dh4gan
+	 * This is used to make lean clones of Body objects for use inside the N Body calculation
+	 *  (where grids etc aren't needed)
+	 */
+	return new Body(name, mass, radius, position, velocity);
+
+}
+
 
 /* Calculation Methods */
 
@@ -193,7 +298,6 @@ void Body::calcOrbitFromVector(double G, double totmass)
      * Calls calcOrbitalAngularMomentum, calcEccentricity in the process
      */
 
-    double pi = 3.141592658285;
     Vector3D nplane; // Vector pointing toward Ascending Node
     double edotR, ndotR, edotn, ndotV, rdotV;
     double magpos, nscalar;
@@ -236,8 +340,8 @@ void Body::calcOrbitFromVector(double G, double totmass)
     else
 	{
 
-	nplane.elements[0] = -orbitalAngularMomentum.elements[2];
-	nplane.elements[1] = orbitalAngularMomentum.elements[1];
+	nplane.elements[0] = -orbitalAngularMomentum.elements[1];
+	nplane.elements[1] = orbitalAngularMomentum.elements[0];
 	nplane.elements[2] = 0.0;
 
 	nscalar = nplane.magVector();
@@ -329,6 +433,8 @@ void Body::calcOrbitFromVector(double G, Body* parentBody)
      *
      */
 
+	Vector3D hostpos_original = parentBody->getPosition();
+	Vector3D hostvel = parentBody->getVelocity();
 
     Vector3D framepos = parentBody->getPosition();
     Vector3D framevel = parentBody->getVelocity();
@@ -350,7 +456,12 @@ void Body::calcOrbitFromVector(double G, Body* parentBody)
 
 double Body::calcPeriod(double G, double totalMass)
 	    {
-    double pi = 3.1415926585;
+    /*
+     * Written by dh4gan 19/09/2018
+     * Computes the period of the Body according to Kepler's Third Law
+     *
+     */
+     
     double period;
 
     period = sqrt(4.0 * pi * pi * semiMajorAxis * semiMajorAxis * semiMajorAxis / (G
@@ -416,14 +527,9 @@ void Body::calcTrueAnomaly(double G, double totalMass, double time)
      *
      */
 
-    double period;
-
-    double pi = 3.1415926585;
-
-
     // Calculate period
 
-    period = calcPeriod(G,totalMass);
+    double period = calcPeriod(G,totalMass);
 
     // Calculate mean anomaly
     meanAnomaly = fmod(2.0*pi*time / period, 2.0*pi);

@@ -7,8 +7,6 @@
 
 #include "Star.h"
 #include "Constants.h"
-#include "RadiationConstants.h"
-
 
 #include <iostream>
 /* Constructors and Destructor */
@@ -100,6 +98,22 @@ Star::Star(string namestring, double m, double rad, double semimaj,
     calculateSingleHZ();
 
     }
+
+Star::Star(parFile &input, int &bodyIndex, double &G):
+Body(input,bodyIndex,G)
+{
+    
+    type="Star";
+    Teff = input.getDoubleVariable("Teff");
+    
+    nlambda = input.getDoubleVariable("NLambda");
+    I_lambda = vector<double>(nlambda,0.0);
+    
+    luminosity = input.getDoubleVariable("Luminosity");
+    
+    calculateSingleHZ();
+    
+}
 
 
 Star::~Star() {

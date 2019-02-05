@@ -43,6 +43,8 @@ public:
 	    double argper, double meananom, double G, double totalMass,
 	    double &lum, double &T, int &n);
 
+    Star(parFile &input, int &bodyIndex, double &G);
+    
 	virtual ~Star();
 
 	void setLuminosity(double lum){luminosity = lum;}

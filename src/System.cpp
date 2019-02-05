@@ -6,7 +6,7 @@
  */
 
 #include "System.h"
-//#include "Constants.h"
+#include "Constants.h"
 #include <iostream>
 #include <stdio.h>
 #include <algorithm>
@@ -15,7 +15,7 @@ System::System()
     {
     name = "System";
     bodies = vector<Body*> (0);
-    bodyCount = 0.0;
+    bodyCount = 0;
     Vector3D zeroVector;
 
     totalMass = 0.0;
@@ -39,8 +39,7 @@ System::System()
     accelerationCOM = zeroVector;
 
     planetaryIlluminationOn = false;
-    fullOutput = false;
-    infoFile = NULL;
+
 
     }
 
@@ -77,8 +76,6 @@ System::System(string &namestring, vector<Body*> &bodyarray)
     accelerationCOM = zeroVector;
 
     planetaryIlluminationOn = false;
-    fullOutput = false;
-    infoFile = NULL;
     }
 
 System::~System()
@@ -131,26 +128,25 @@ void System::setHostBodies(vector<int> orbitCentre)
     {
     /*
      * Written 19/8/14 by dh4gan
-     * Sets up Host Bodies where appropriate
-     *
+     * Sets up Host Bodies for Worlds where appropriate
+     * Catalogue how much mass is orbiting each body
      */
 
     for (int i=0; i<bodyCount; i++)
 	{
-	if(bodies[i]->getType()=="PlanetSurface")
-	    {
 	    if(orbitCentre[i]>0)
 		{
 		bodies[i]->setHostBody(bodies[orbitCentre[i]-1]);
+		bodies[orbitCentre[i]-1]->setHostMass(bodies[orbitCentre[i]-1]->getHostMass() + bodies[i]->getMass());
 		}
-	    }
-
 	}
 
-
-
     }
+
 /* Calculation Methods */
+
+
+
 
 void System::calcCOMFrame(vector<int> participants)
     {/* Author: dh4gan
@@ -159,25 +155,36 @@ void System::calcCOMFrame(vector<int> participants)
      */
 
     int i;
-    double m;
+    double m, participantMass;
     Vector3D pos, vel, zerovector;
 
     positionCOM = zerovector;
     velocityCOM = zerovector;
 
+    participantMass = 0.0;
+
     for (i = 0; i < bodyCount; i++)
 	{
+
 	if (participants[i] == 1)
 	    {
 	    pos = bodies[i]->getPosition();
 	    vel = bodies[i]->getVelocity();
 	    m = bodies[i]->getMass();
-
-	    positionCOM = positionCOM.addVector(pos.scaleVector(m/totalMass));
-	    velocityCOM = velocityCOM.addVector(vel.scaleVector(m/totalMass));
+	    participantMass +=m;
+	    positionCOM = positionCOM.addVector(pos.scaleVector(m));
+	    velocityCOM = velocityCOM.addVector(vel.scaleVector(m));
 
 	    }
 	}
+
+    if(participantMass>0.0)
+    {
+    participantMass = 1.0/participantMass;
+    }
+
+    positionCOM = positionCOM.scaleVector(participantMass);
+    velocityCOM = velocityCOM.scaleVector(participantMass);
 
     }
 
@@ -269,6 +276,98 @@ void System::transformToBodyFrame(int bodyIndex)
 	}
     //end of module
     }
+
+
+void System::calcHostCOMFrame(Body* host, Vector3D &hostCOM, Vector3D &hostvelCOM)
+{
+	/*
+	 * Written 8/1/14 by dh4gan
+	 * Transforms system so that COM of system belonging to body host is at centre
+	 */
+
+	vector<int> participants(bodyCount,0);
+	double m, participantMass;
+	Vector3D pos, vel, zerovector;
+
+
+	// Find all bodies with this host
+	for(int i=0; i<bodyCount; i++)
+	{
+		if(bodies[i]==host)
+		{
+			participants[i]=1;
+		}
+		if(bodies[i]->getHostBody()==host)
+		{
+			participants[i]=1;
+		}
+
+	}
+
+	// Calculate COM frame of these bodies
+
+	hostCOM = zerovector;
+	hostvelCOM = zerovector;
+	participantMass = 0.0;
+	    for (int i = 0; i < bodyCount; i++)
+		{
+
+		if (participants[i] == 1)
+		    {
+		    pos = bodies[i]->getPosition();
+		    vel = bodies[i]->getVelocity();
+		    m = bodies[i]->getMass();
+		    participantMass +=m;
+		    hostCOM = hostCOM.addVector(pos.scaleVector(m));
+		    hostvelCOM = hostvelCOM.addVector(vel.scaleVector(m));
+
+		    }
+		}
+
+	    if(participantMass>0.0)
+	    {
+	    participantMass = 1.0/participantMass;
+	    }
+
+	    hostCOM = hostCOM.scaleVector(participantMass);
+	    hostvelCOM = hostvelCOM.scaleVector(participantMass);
+
+	    }
+
+void System::transformToArbitraryFrame(Vector3D framePosition, Vector3D frameVelocity, vector<int> participants)
+{
+	/*
+	 * Written 8/1/14 by dh4gan
+	 * Transforms part of the system to arbitrary reference frame
+	 * Bodies taking part in the transformation have non-zero entries in participant array
+	 */
+
+	// Find all bodies with this host
+	for(int i=0; i<bodyCount; i++)
+	{
+		if(participants[i]==1)
+		{
+		bodies[i]->setPosition(bodies[i]->getPosition().subtractVector(framePosition));
+		bodies[i]->setVelocity(bodies[i]->getVelocity().subtractVector(frameVelocity));
+		}
+	}
+
+}
+
+void System::transformToArbitraryFrame(Vector3D framePosition, Vector3D frameVelocity)
+{
+	/*
+	 * Written 8/1/14 by dh4gan
+	 * Transforms entire system to arbitrary reference frame
+	 */
+	vector<int> participants(bodyCount,1);
+
+	transformToArbitraryFrame(framePosition,frameVelocity,participants);
+
+}
+
+
+
 
 void System::calcTotalEnergy()
     {
@@ -388,7 +487,7 @@ void System::calcNBodyTimestep(vector<Body*> &bodyarray, double dtmax)
     double dtarraymax;
 
 #pragma omp parallel default(none) \
-	shared(bodyarray,dt) \
+	shared(dt) \
 	private(i)
 	{
 	for (i = 0; i < bodyCount; i++)
@@ -410,16 +509,16 @@ void System::calcNBodyTimestep(vector<Body*> &bodyarray, double dtmax)
 
     }
 
+
 void System::calcNBodyTimestep(double dtmax)
-    {/* Author: dh4gan
-     overloaded Timestep method - defaults to the object's own body array
-      the calcTimestep method for every Body object in the System object,
-     and finds the minimum value */
-
+{/* Author: dh4gan
+  overloaded Timestep method - defaults to the object's own body array
+  the calcTimestep method for every Body object in the System object,
+  and finds the minimum value */
+    
     calcNBodyTimestep(bodies,dtmax);
-
-    }
-
+    
+}
 
 void System::setupOrbits(vector<int> orbitCentre)
     {
@@ -431,6 +530,10 @@ void System::setupOrbits(vector<int> orbitCentre)
      */
 
     vector <int> participants(bodyCount,0);
+    vector <int> hosts(bodyCount, 0);
+
+    Vector3D hostPosition,hostVelocity;
+    Vector3D hostCOM,hostvelCOM;
 
     // Firstly, set up desired objects around centre of mass
 
@@ -456,30 +559,105 @@ void System::setupOrbits(vector<int> orbitCentre)
     // Transform them to COM Frame
     transformToCOMFrame(participants);
 
+
+    // Set up bodies with specific hosts
+    // i) - place satellites in orbits assuming host is at the centre
+    // ii) - shift host so that CoM of host-satellite system follows original orbit specified for host
+
+
+    // r_host new =  1/m_host* (r_host*mtot - (sum_i(i/=host) m_i r_i))
+    // similar for v_host
+
+    // r_host new = r_host as mass of satellites goes to zero
+
+
+    // Define arrays to compute total mass of host systems and CoM of satellites
+    vector<double> totalMassAroundHost(bodyCount,0.0);
+    vector<Vector3D> xCOMroundHost(bodyCount);
+    vector<Vector3D> vCOMroundHost(bodyCount);
+
+    // i) Place satellites around host at centre
+
     for (int b = 0; b < bodyCount; b++)
 	{
+        
+        // Identify hosts and compute total mass belonging to each host
 	if (orbitCentre[b] > 0)
 	    {
 
+	    int ihost = orbitCentre[b]-1;
+	    hosts[ihost]=1;  // Record host status for later
+
+		totalMassAroundHost[ihost] = totalMassAroundHost[ihost]+bodies[b]->getMass();
+
+	    }
+	}
+
+
+        // Add host mass to totals
+	for(int b=0; b< bodyCount; b++)
+
+	{
+	if(hosts[b]==1)
+
+	{totalMassAroundHost[b] = totalMassAroundHost[b] + bodies[b]->getMass();}
+	}
+
+
+    // Setup bodies in orbit around each host
+   for (int b=0; b<bodyCount; b++)
+
+	{
+
+	if(orbitCentre[b]>0)
+
+	{
+		int ihost = orbitCentre[b]-1;
+
 	    bodies[b]->calcVectorFromOrbit(G,
-		    bodies[orbitCentre[b] - 1]->getMass());
+		    totalMassAroundHost[ihost]);
 
 	    Vector3D framepos =
-		    bodies[orbitCentre[b] - 1]->getPosition().scaleVector(-1.0);
+		    bodies[ihost]->getPosition().scaleVector(-1.0);
 	    Vector3D framevel =
-		    bodies[orbitCentre[b] - 1]->getVelocity().scaleVector(-1.0);
+		    bodies[ihost]->getVelocity().scaleVector(-1.0);
 	    bodies[b]->changeFrame(framepos, framevel);
 
+	    // Compute COM of host system (minus host contribution)
+	    xCOMroundHost[ihost] = xCOMroundHost[ihost].addVector(bodies[b]->getPosition().scaleVector(bodies[b]->getMass()));
+	    vCOMroundHost[ihost] = vCOMroundHost[ihost].addVector(bodies[b]->getVelocity().scaleVector(bodies[b]->getMass()));
 
-	    // Set up Hosts for Worlds (to calculate tidal heating)
-	    if(bodies[b]->getType()=="World")
-		{
-		bodies[b]->setHostBody(bodies[orbitCentre[b]]);
-		}
 	    }
 
 	}
-    }
+
+    // Now ensure that each host system is setup such that the CoM of the system
+    // moves along the host's assigned orbit
+
+    // Do this by moving the host and altering its velocity as specified in above comments
+
+    for (int b=0; b<bodyCount; b++)
+
+      {
+
+	// If this body is a host, then alter its position and velocity
+	if (hosts[b]==1)
+	  {
+
+	    Vector3D newPosition = bodies[b]->getPosition().scaleVector(totalMassAroundHost[b]).subtractVector(xCOMroundHost[b]);
+	    newPosition = newPosition.scaleVector(1.0/bodies[b]->getMass());
+
+	    Vector3D newVelocity = bodies[b]->getVelocity().scaleVector(totalMassAroundHost[b]).subtractVector(vCOMroundHost[b]);
+	    	    newVelocity = newVelocity.scaleVector(1.0/bodies[b]->getMass());
+
+	    bodies[b]->setPosition(newPosition);
+	    bodies[b]->setVelocity(newVelocity);
+
+	  }
+      }
+
+
+}
 
 
 void System::calcForces(vector<Body*> &bodyarray)
@@ -494,7 +672,7 @@ void System::calcForces(vector<Body*> &bodyarray)
     Vector3D zeroVector;
 
 #pragma omp parallel default(none) \
-	shared(bodyarray,length,zeroVector) \
+	shared(length,zeroVector) \
 	private(i)
 	{
 #pragma omp for schedule(runtime) ordered
@@ -507,7 +685,7 @@ void System::calcForces(vector<Body*> &bodyarray)
 	    }
 	}
 #pragma omp parallel default(none) \
-	shared(bodyarray,length,zeroVector) \
+	shared(length,zeroVector) \
 	private(i)
 	{
 #pragma omp for schedule(runtime) ordered
@@ -573,8 +751,6 @@ vector<double> System::checkForEclipses(int bodyIndex)
 
      The method returns a vector of doubles, describing what fraction of the star is eclipsed [0,1]
      */
-
-	double pi = 3.14159265285;
 
 	vector<double> eclipsefrac(bodyCount,0.0);
 	Vector3D vector_i, vector_j;
@@ -705,7 +881,7 @@ void System::evolveSystem(double tbegin, double tend)
 
     /* iii Set predicted body array equal to the current body array */
     for (i=0;i<bodyCount; i++){
-	predicted.push_back(bodies[i]->Clone());
+	predicted.push_back(bodies[i]->nBodyClone());
     }
 
     /* Begin loop over time */
@@ -748,6 +924,7 @@ void System::evolveSystem(double tbegin, double tend)
 
 	/* 2. Use predicted positions and velocities to calculate
 	 * predicted accelerations, jerks, snaps and crackles */
+
 	calcForces(predicted);
 
 
@@ -789,6 +966,8 @@ void System::evolveSystem(double tbegin, double tend)
 	    bodies[i]->setPosition(pos_c);
 	    bodies[i]->setVelocity(vel_c);
 
+
+
 	    }
 	}
 
@@ -803,7 +982,6 @@ void System::evolveSystem(double tbegin, double tend)
 	calcNBodyTimestep(bodies, dtmax);
 	calcTotalEnergy();
 	calcTotalAngularMomentum();
-
 
 
 	}
@@ -837,12 +1015,6 @@ void System::calcPlanetaryEquilibriumTemperatures()
      */
 
     double sep, temp, lum, rad, albedo;
-    double pi = 3.141592653;
-    double sigma_SB = 5.67e-8;
-
-    double AU = 1.496e11;
-    double lsol = 3.826e26;
-    double rsol = 6.955e8;
 
     for (int j=0; j< bodyCount; j++)
 	{
@@ -890,294 +1062,293 @@ void System::calcPlanetaryEquilibriumTemperatures()
 
     }
 
-
 void System::calcLongitudesOfNoon()
-    {
+{
     for (int j = 0; j < bodyCount; j++)
-	{
-
-	// If body is a PlanetSurface Object, loop through other bodies
-	// and calculate the flux they emit onto its surface
-
-	if (bodies[j]->getType() == "PlanetSurface")
-	    {
-
-	    for (int i = 0; i < bodyCount; i++)
-		{
-
-		if (bodies[i]->getType() == "Star")
-		    {
-		    bodies[j]->calcLongitudeOfNoon(bodies[i], i);
-		    }
-
-		if (bodies[i]->getType() == "Planet"
-			and planetaryIlluminationOn)
-		    {
-		    bodies[j]->calcLongitudeOfNoon(bodies[i], i);
-		    }
-		}
-
-	    }
-	}
-
-
+    {
+        
+        // If body is a PlanetSurface Object, loop through other bodies
+        // and calculate the flux they emit onto its surface
+        
+        if (bodies[j]->getType() == "PlanetSurface")
+        {
+            
+            for (int i = 0; i < bodyCount; i++)
+            {
+                
+                if (bodies[i]->getType() == "Star")
+                {
+                    bodies[j]->calcLongitudeOfNoon(bodies[i], i);
+                }
+                
+                if (bodies[i]->getType() == "Planet"
+                    and planetaryIlluminationOn)
+                {
+                    bodies[j]->calcLongitudeOfNoon(bodies[i], i);
+                }
+            }
+            
+        }
     }
+    
+    
+}
 
 void System::calc2DFlux(double &time, double &dt)
-    {
+{
     /*
      * Written 11/12/14 by dh4gan
      * Method allows PlanetSurface Objects to call their flux calculation routines
      *
      */
-
+    
     vector<double> eclipsefrac;
-
+    
     for (int j=0; j<bodyCount; j++)
-	{
-
-	// If body is a PlanetSurface Object, loop through other bodies
-	// and calculate the flux they emit onto its surface
-
-	if(bodies[j]->getType()=="PlanetSurface")
-	    {
-
-	    bodies[j]->resetFluxTotals();
-	    eclipsefrac = checkForEclipses(j);
-	    for(int i=0; i< bodyCount; i++)
-		{
-
-		if(i==j) continue; // PlanetSurface can't emit flux onto itself
-
-
-		if(bodies[i]->getType()=="Star")
-		    {
-
-		    bodies[j]->calcFlux(i, bodies[i], eclipsefrac[i], time, dt);
-		    }
-
-		if(bodies[i]->getType()=="Planet" && planetaryIlluminationOn)
-		    {
-		    bodies[j]->calcFlux(i, bodies[i], eclipsefrac[i], time, dt);
-		    }
-
-		}
-
-	    bodies[j]->calcIntegratedQuantities(dt);
-	    }
-
-	}
-
-
+    {
+        
+        // If body is a PlanetSurface Object, loop through other bodies
+        // and calculate the flux they emit onto its surface
+        
+        if(bodies[j]->getType()=="PlanetSurface")
+        {
+            
+            bodies[j]->resetFluxTotals();
+            eclipsefrac = checkForEclipses(j);
+            for(int i=0; i< bodyCount; i++)
+            {
+                
+                if(i==j) continue; // PlanetSurface can't emit flux onto itself
+                
+                
+                if(bodies[i]->getType()=="Star")
+                {
+                    
+                    bodies[j]->calcFlux(i, bodies[i], eclipsefrac[i], time, dt);
+                }
+                
+                if(bodies[i]->getType()=="Planet" && planetaryIlluminationOn)
+                {
+                    bodies[j]->calcFlux(i, bodies[i], eclipsefrac[i], time, dt);
+                }
+                
+            }
+            
+            bodies[j]->calcIntegratedQuantities(dt);
+        }
+        
     }
+    
+    
+}
 
 
 void System::initialise2DFluxOutput(string prefixString)
-    {
+{
     /*
      * Written 12/12/14 by dh4gan
      * Initialises files for all PlanetSurface objects in the system
      *
      */
-
+    
     for (int j = 0; j < bodyCount; j++)
-	{
-
-	if (bodies[j]->getType() == "PlanetSurface")
-	    {
-	    bodies[j]->initialiseOutputVariables(prefixString, bodies);
-	    }
-
-	}
-
-    calcLongitudesOfNoon();
-
+    {
+        
+        if (bodies[j]->getType() == "PlanetSurface")
+        {
+            bodies[j]->initialiseOutputVariables(prefixString, bodies);
+        }
+        
     }
+    
+    calcLongitudesOfNoon();
+    
+}
 
 void System::outputNBodyData(FILE *outputfile, double &time, vector<int> orbitCentre)
-    {
+{
     /*
      * Written 10/1/14 by dh4gan
      * Method writes N Body information to
      * already open file pointer
      * orbitCentre vector determines where the orbits are calculated from
      */
-
+    
     Vector3D position, velocity;
     // Transform to the Centre of Mass Frame
     transformToCOMFrame();
     //transformToBodyFrame(0);
-
+    
     for (int j = 0; j < bodyCount; j++)
-	{
-
-	if(orbitCentre[j]>0)
-	    {
-	    bodies[j]->calcOrbitFromVector(G, bodies[orbitCentre[j]-1]);
-	    }
-
-	else
-	    {
-	    bodies[j]->calcOrbitFromVector(G, totalMass);
-	    }
-
-	position = bodies[j]->getPosition();
-	velocity = bodies[j]->getVelocity();
-
-	//Write out the data
-	//Output format  CSV
-	// mass,position_x,position_y,position_z,velocity_x,velocity_y,velocity_z
-
-	fprintf(outputfile,
-		"%+.4E,%+.4E, %s,%+.4E,%+.4E,%+.4E,%+.4E,%+.4E,%+.4E,%+.4E,%+.4E,"
-			"%+.4E,%+.4E,%+.4E,%+.4E,%+.4E,%+.4E\n", time,
-		totalEnergy, bodies[j]->getName().c_str(), bodies[j]->getMass(),
-		bodies[j]->getRadius(), position.elements[0],
-		position.elements[1], position.elements[2],
-		velocity.elements[0], velocity.elements[1],
-		velocity.elements[2], bodies[j]->getSemiMajorAxis(),
-		bodies[j]->getEccentricity(), bodies[j]->getInclination(),
-		bodies[j]->getLongitudeAscendingNode(),
-		bodies[j]->getArgumentPeriapsis(), bodies[j]->getMeanAnomaly());
-
-	}
-    fflush(outputfile);
-
+    {
+        
+        if(orbitCentre[j]>0)
+        {
+            bodies[j]->calcOrbitFromVector(G, bodies[orbitCentre[j]-1]);
+        }
+        
+        else
+        {
+            bodies[j]->calcOrbitFromVector(G, totalMass);
+        }
+        
+        position = bodies[j]->getPosition();
+        velocity = bodies[j]->getVelocity();
+        
+        //Write out the data
+        //Output format  CSV
+        // mass,position_x,position_y,position_z,velocity_x,velocity_y,velocity_z
+        
+        fprintf(outputfile,
+                "%+.4E,%+.4E, %s,%+.4E,%+.4E,%+.4E,%+.4E,%+.4E,%+.4E,%+.4E,%+.4E,"
+                "%+.4E,%+.4E,%+.4E,%+.4E,%+.4E,%+.4E\n", time,
+                totalEnergy, bodies[j]->getName().c_str(), bodies[j]->getMass(),
+                bodies[j]->getRadius(), position.elements[0],
+                position.elements[1], position.elements[2],
+                velocity.elements[0], velocity.elements[1],
+                velocity.elements[2], bodies[j]->getSemiMajorAxis(),
+                bodies[j]->getEccentricity(), bodies[j]->getInclination(),
+                bodies[j]->getLongitudeAscendingNode(),
+                bodies[j]->getArgumentPeriapsis(), bodies[j]->getMeanAnomaly());
+        
     }
+    fflush(outputfile);
+    
+}
 
 void System::output2DFluxData(int &snapshotNumber, double &tSnap, string prefixString)
-    {
-
+{
+    
     /*
      * Written 10/1/14 by dh4gan
      * Requires Worlds to write their LEBM data to files
      *
      */
-
+    
     for (int b=0; b < bodyCount; b++)
-	{
-	if(bodies[b]->getType()=="PlanetSurface")
-	    {
-
-		if(fullOutput){
-	    bodies[b]->writeFluxFile(snapshotNumber, nTime, tSnap, prefixString);
-		}
-
-		bodies[b]->writeToLocationFiles(tSnap, bodies);
-
-	    }
-
-	}
-
+    {
+        if(bodies[b]->getType()=="PlanetSurface")
+        {
+            
+            if(fullOutput){
+                bodies[b]->writeFluxFile(snapshotNumber, nTime, tSnap, prefixString);
+            }
+            
+            bodies[b]->writeToLocationFiles(tSnap, bodies);
+            
+        }
+        
     }
+    
+}
 
 void System::outputIntegratedFluxData() {
-	/*
-	 * Written 4/12/14 by dh4gan
-	 * Writes the integrated flux data to files
-	 *
-	 */
-
-	for (int b = 0; b < bodyCount; b++) {
-		if (bodies[b]->getType() == "PlanetSurface") {
-
-			bodies[b]->writeIntegratedFile();
-
-		}
-
-	}
-
+    /*
+     * Written 4/12/14 by dh4gan
+     * Writes the integrated flux data to files
+     *
+     */
+    
+    for (int b = 0; b < bodyCount; b++) {
+        if (bodies[b]->getType() == "PlanetSurface") {
+            
+            bodies[b]->writeIntegratedFile();
+            
+        }
+        
+    }
+    
 }
 
 void System::outputInfoFile(int nSnaps)
-    {
-
+{
+    
     /*
      * Written 17/12/14 by dh4gan
      * Writes an info file for use in plotting 2D flux data
      *
      */
-
-       string fileString = getName()+".info";
-       infoFile = fopen(fileString.c_str(), "w");
-
-       double globalFluxMax= 0.0;
-       int nStars = countStars();
-
-       	fprintf(infoFile,"%i \n", nSnaps);
-       	fprintf(infoFile,"%i \n", nStars);
-
-       for (int s = 0; s < bodyCount; s++)
-   	{
-   	if (bodies[s]->getType() == "Star")
-   	    {
-   	    fprintf(infoFile, "%s \n", bodies[s]->getName().c_str());
-   	    fprintf(infoFile, "%+.4E %+.4E %+.4E \n", bodies[s]->getRadius(),
-   		 bodies[s]->getTeff(),
-   		bodies[s]->calculatePeakWavelength());
-   	    }
-
-   	if (bodies[s]->getType() == "PlanetSurface")
-   	    {
-   	    if (bodies[s]->getFluxMax() > globalFluxMax)
-   		{
-   		globalFluxMax = bodies[s]->getFluxMax();
-   		}
-
-   	    }
-   	}
-
-       	fprintf(infoFile, "%+.4E \n", globalFluxMax);
-       	fclose(infoFile);
-
-
+    
+    string fileString = getName()+".info";
+    infoFile = fopen(fileString.c_str(), "w");
+    
+    double globalFluxMax= 0.0;
+    int nStars = countStars();
+    
+    fprintf(infoFile,"%i \n", nSnaps);
+    fprintf(infoFile,"%i \n", nStars);
+    
+    for (int s = 0; s < bodyCount; s++)
+    {
+        if (bodies[s]->getType() == "Star")
+        {
+            fprintf(infoFile, "%s \n", bodies[s]->getName().c_str());
+            fprintf(infoFile, "%+.4E %+.4E %+.4E \n", bodies[s]->getRadius(),
+                    bodies[s]->getTeff(),
+                    bodies[s]->calculatePeakWavelength());
+        }
+        
+        if (bodies[s]->getType() == "PlanetSurface")
+        {
+            if (bodies[s]->getFluxMax() > globalFluxMax)
+            {
+                globalFluxMax = bodies[s]->getFluxMax();
+            }
+            
+        }
     }
+    
+    fprintf(infoFile, "%+.4E \n", globalFluxMax);
+    fclose(infoFile);
+    
+    
+}
 
 int System::countStars()
-    {
+{
     /*
      * Written 11/12/14 by dh4gan
      * Returns the number of Body objects with Type Star
      */
-
+    
     int nStars = 0;
     for (int j = 0; j < bodyCount; j++)
-	{
-	if (bodies[j]->getType() == "Star")
-	    nStars++;
-	}
-    return nStars;
+    {
+        if (bodies[j]->getType() == "Star")
+        nStars++;
     }
+    return nStars;
+}
 
 int System::countPlanets()
-    {
+{
     /*
      * Written 11/12/14 by dh4gan
      * Returns the number of Body objects with Type Star
      */
-
+    
     int nPlanets = 0;
     for (int j = 0; j < bodyCount; j++)
-	{
-	if (bodies[j]->getType() == "Planet")
-	    nPlanets++;
-	}
-    return nPlanets;
+    {
+        if (bodies[j]->getType() == "Planet")
+        nPlanets++;
     }
+    return nPlanets;
+}
 
 int System::countPlanetSurfaces()
-    {
+{
     /*
      * Written 11/12/14 by dh4gan
      * Returns the number of Body objects with Type Star
      */
-
+    
     int nPlanetSurfaces = 0;
     for (int j = 0; j < bodyCount; j++)
-	{
-	if (bodies[j]->getType() == "PlanetSurface")
-	    nPlanetSurfaces++;
-	}
-    return nPlanetSurfaces;
+    {
+        if (bodies[j]->getType() == "PlanetSurface")
+        nPlanetSurfaces++;
     }
+    return nPlanetSurfaces;
+}
 
