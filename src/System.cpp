@@ -1123,7 +1123,6 @@ void System::calc2DFlux(double &time, double &dt)
                 
                 if(bodies[i]->getType()=="Star")
                 {
-                    
                     bodies[j]->calcFlux(i, bodies[i], eclipsefrac[i], time, dt);
                 }
                 

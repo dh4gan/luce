@@ -104,12 +104,12 @@ Body(input,bodyIndex,G)
 {
     
     type="Star";
-    Teff = input.getDoubleVariable("Teff");
+    Teff = input.getDoubleVariable("EffectiveTemperature",bodyIndex);
     
     nlambda = input.getDoubleVariable("NLambda");
     I_lambda = vector<double>(nlambda,0.0);
     
-    luminosity = input.getDoubleVariable("Luminosity");
+    luminosity = input.getDoubleVariable("Luminosity",bodyIndex);
     
     calculateSingleHZ();
     

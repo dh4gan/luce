@@ -217,14 +217,14 @@ int main(int argc, char* argv[])
 
 	    // Recalculate the minimum timestep
 	    nBodySystem.calcNBodyTimestep(dtmax);
+        
 	    dtunit = nBodySystem.getTimestep();
-
 	    timeyr = timeunit/twopi;
 	    dtyr = dtunit/twopi;
 
 	    }
 
-	printf("Time: %+.4E yr, Combined Timestep: %+.4E years, %+.4E units\n",timeyr, dtyr, dtunit);
+	printf("Time: %+.4E yr, N-Body Timestep: %+.4E years, %+.4E units\n",timeyr, dtyr, dtunit);
 
 	// Calculate 2D Fluxes
 	nBodySystem.calc2DFlux(timeyr, dtflux);

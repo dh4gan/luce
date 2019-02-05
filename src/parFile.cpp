@@ -362,6 +362,8 @@ void parFile::readVectorDoubleVariable(string &par, istringstream &iss, int &bod
     double value;
     iss>> value;
     
+    cout << par << endl;
+    
     vectorDoubleVariables[par][bodyIndex] = value;
 }
 
@@ -437,6 +439,27 @@ void parFile::reportError(const string &par, string &value)
     exit(1);
 }
 
+
+void parFile::checkIntValueDefined(const string &par)
+
+{
+    if(intVariables[par]<=0)
+    {
+        reportError(par, intVariables[par]);
+    }
+}
+
+
+void parFile::checkDoubleValueDefined(const string &par)
+{
+    if(doubleVariables[par]<=0.0)
+    {
+        reportError(par,doubleVariables[par]);
+    }
+    
+    
+}
+
 void parFile::checkParameters()
 
 {
@@ -448,32 +471,21 @@ void parFile::checkParameters()
      *
      */
     
-    // Check number of grid points is defined
-    if(intVariables["NGridPoints"]==0)
-    {
-        reportError("NGridPoints",intVariables["nGridPoints"]);
-    }
-    
     
     // Set a default name for system if not specified
     if(stringVariables["SystemName"].compare("")==0)
     {
         stringVariables["SystemName"] = "System";
     }
+
+    // Check latitude/longitude values defined
+    checkIntValueDefined("NLatitude");
+    checkIntValueDefined("NLongitude");
+    checkIntValueDefined("NLambda");
     
+    checkDoubleValueDefined("SnapshotTime");
+    checkDoubleValueDefined("MaximumTime");
     
-    // Check snapshot interval is defined
-    if(doubleVariables["SnapshotTime"]==0.0)
-    {
-        reportError("SnapshotTime",doubleVariables["SnapshotTime"]);
-    }
-    
-    // Check maximum time is defined
-    if(doubleVariables["MaximumTime"]==0.0)
-    {
-        reportError("MaximumTime", doubleVariables["MaximumTime"]);
-    }
-               
 }
 
 
@@ -510,24 +522,6 @@ void parFile::displayParameters()
         printf("Planetary Illumination is OFF \n");
     }
     
-    if(boolVariables["TidalHeating"])
-    {
-        printf("Tidal Heating is ON \n");
-    }
-    else
-    {
-        printf("Tidal Heating is OFF \n");
-    }
-    
-    
-    if(boolVariables["CarbonateSilicateCycle"])
-    {
-        printf("Carbonate Silicate Cycle is ON \n");
-    }
-    else
-    {
-        printf("Carbonate Silicate Cycle is OFF \n");
-    }
     
     printf("%s",screenBar.c_str());
     printf("Individual Body Parameters \n");

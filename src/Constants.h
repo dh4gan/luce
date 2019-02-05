@@ -15,6 +15,7 @@ const double twopi = 2.0*pi;
 const double piby2 = 0.5*pi;
 
 const double year = 3.1556926e7; // year in seconds
+const double yearInDays = 365.24;
 const double degToRad = pi/180.0;
 const double radToDeg = 1.0/degToRad;
 

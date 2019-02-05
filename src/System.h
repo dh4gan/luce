@@ -138,11 +138,9 @@ protected:
 	Vector3D accelerationCOM; // Acceleration of the Centre of Mass
 
 	bool planetaryIlluminationOn;
-	bool fullOutput; // TODO - Booleans need to be set as parameters
+	bool fullOutput;
 
 	FILE *infoFile;
-
-	// TODO - Need to warn user if using too many bodies in a simulation
 
 };
 

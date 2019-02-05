@@ -40,7 +40,7 @@ const string stringV[] = {"ParType", "NBodyOutput", "SystemName","Restart","Plan
  const string boolV[] = {"Restart","PlanetaryIllumination","FullOutput"};
 
 // Scalar ints to be read in
-const string intV[] = {"NGridPoints","Number_Bodies", "NLambda", "NLongitude"};
+const string intV[] = {"Number_Bodies", "NLambda", "NLongitude", "NLatitude"};
 
 // Scalar doubles
 const string doubleV[] = {"TotalMass","SnapshotTime","MaximumTime"};
@@ -52,7 +52,7 @@ const string vectorStringV[] = {"BodyName", "BodyType"};
 const string vectorIntV[] = {"OrbitCentre"};
 
 // Vector (double) variables
-const string vectorDoubleV[] = {"Mass", "Radius", "Position", "XPosition", "YPosition", "ZPosition", "Velocity", "XVelocity", "YVelocity", "ZVelocity", "SemiMajorAxis", "Eccentricity", "Inclination", "LongAscend", "Periapsis", "MeanAnomaly", "RotationPeriod", "Obliquity", "WinterSolstice", "Albedo","Luminosity"};
+const string vectorDoubleV[] = {"Mass", "Radius", "Position", "XPosition", "YPosition", "ZPosition", "Velocity", "XVelocity", "YVelocity", "ZVelocity", "SemiMajorAxis", "Eccentricity", "Inclination", "LongAscend", "Periapsis", "MeanAnomaly", "RotationPeriod", "Obliquity", "WinterSolstice", "Albedo","Luminosity", "EffectiveTemperature"};
 
 
 const string degreeV[] = {"Obliquity","WinterSolstice"}; // Variables with units of degrees - these are eventually converted to radians
@@ -118,6 +118,8 @@ public:
     void reportError(const string &par, double &value);
     void reportError(const string &par, int &value);
     void reportError(const string &par, string &value);
+    void checkIntValueDefined(const string &par);
+    void checkDoubleValueDefined(const string &par);
     
 private:
 	string parFileName;

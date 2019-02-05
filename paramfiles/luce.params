@@ -1,10 +1,11 @@
 ParType Orbital
 NBodyOutput test.nbody
-SnapshotTime	1.0e-3
+SnapshotTime	1.0e-2
 MaximumTime	1.0
 NLambda		100
 NLatitude	100
 NLongitude 	100
+FullOutput F
 SystemName test
 Number_Bodies 2
 --
@@ -26,14 +27,13 @@ BodyName Earth
 BodyType PlanetSurface
 Mass 1.0e-6
 Radius 1.0e-4
-SemiMajorAxis 1.0
-Eccentricity 0.0
-Inclination 0.0
-LongAscend 0.0
-Periapsis 0.0
-MeanAnomaly 0.0
+SemiMajorAxis 1.0  (AU)
+Eccentricity 0.3
+Inclination 0.0    (degrees)
+LongAscend 0.0     (degrees)
+Periapsis 0.0      (degrees)
+MeanAnomaly 0.0    (degrees)
 RotationPeriod 1.0  (days)
 Obliquity  23.7   (degrees)
-InitialTemperature 288.0
 OrbitCentre 0
 

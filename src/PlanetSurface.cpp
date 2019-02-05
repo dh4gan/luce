@@ -74,12 +74,13 @@ PlanetSurface::PlanetSurface(string &namestring, double &m,
 PlanetSurface::PlanetSurface(parFile &input, int &bodyIndex, double &G):
 Body(input,bodyIndex,G)
 {
+    
     type = "PlanetSurface";
-    //nStars = nstar; TODO - how to do star count?
+    nStars = input.getIntVariable("Number_Bodies");
     nLatitude = input.getIntVariable("NLatitude");
     nLongitude = input.getIntVariable("NLongitude");
-    Pspin = input.getDoubleVariable("Period")/year;
-    obliquity = input.getDoubleVariable("Obliquity");
+    Pspin = input.getDoubleVariable("RotationPeriod",bodyIndex)/yearInDays;
+    obliquity = input.getDoubleVariable("Obliquity", bodyIndex);
     fluxmax = 0.0;
     
     initialiseArrays();
@@ -404,8 +405,7 @@ void PlanetSurface::calcFlux(int &istar, Body* &star, double &eclipseFraction,
 	// Rotate planet according to its spin period
 
 	long_apparent = fmod(
-		longitude[j] - noon[istar] + 2.0 * pi * time / Pspin, 2.0 * pi);
-
+		longitude[j] - noon[istar] + twopi * time / Pspin, twopi);
 
 	// Calculate hour angle - distance between current longitude and noon
 
@@ -450,10 +450,11 @@ shared(fluxsol,eclipseFraction,darkness,integratedflux,dt) \
 				// take the dot product with the unit position vector
 
 				rdotn = unitpos.dotProduct(surface);
-
+                
 				// Calculate fluxes
 				// if position.surface is less than zero, long/lat location is not illuminated
 
+                
 				if (rdotn > 0.0) {
 
 					fluxtemp = lstar * rdotn / (4.0 * pi * magpos * magpos);
@@ -464,6 +465,7 @@ shared(fluxsol,eclipseFraction,darkness,integratedflux,dt) \
 				    fluxtemp = 0.0;
 				    }
 
+                
 				flux[istar][j][k] = fluxtemp * (1.0 - eclipseFraction) * fluxsol;
 
 				fluxtot[j][k] = fluxtot[j][k] + flux[istar][j][k];
